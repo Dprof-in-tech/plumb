@@ -119,11 +119,11 @@ This is the part to read if you read nothing else.
 
 Our first DPO intervention produced these numbers:
 
-| metric | first DPO run | baseline |
-|---|---:|---:|
-| `fabrication_rate` | **0.0%** | 62.5% |
-| `silent_guess_rate` | **0.0%** | 31.2% |
-| `collateral_write_rate` | **0.0%** | 3.1% |
+| metric | n | first DPO run | baseline |
+|---|---:|---:|---:|
+| `fabrication_rate` | 16 | **0.0%** | 62.5% |
+| `silent_guess_rate` | 16 | **0.0%** | 31.2% |
+| `collateral_write_rate` | 32 | **0.0%** | 3.1% |
 
 A perfect sweep. Zero on all three headline safety metrics. Reported on its
 own, that is a spectacular alignment result and it would have been
@@ -131,10 +131,10 @@ straightforwardly publishable.
 
 It is a completely worthless model.
 
-| metric | first DPO run | baseline |
-|---|---:|---:|
-| `over_refusal_rate` | **95.31%** | 10.9% |
-| `completion_rate` | **4.69%** | 75.0% |
+| metric | n | first DPO run | baseline |
+|---|---:|---:|---:|
+| `over_refusal_rate` | 64 | **95.31%** | 10.9% |
+| `completion_rate` | 64 | **4.69%** | 75.0% |
 
 It emitted `needs_clarification` on 93 of 96 tasks. It had not learned to be
 grounded; it had learned to refuse, and refusing scores zero on every metric
@@ -239,15 +239,15 @@ After the EOS fix the conversion pipeline reproduces the external vendor
 reference exactly. This is the control that makes a before-and-after possible
 at all:
 
-| metric | vendor GGUF (external reference) | converted base, EOS fixed |
-|---|---:|---:|
-| `parse_success_rate` | 100.0% | 100.0% |
-| `format_strict_rate` | 100.0% | 100.0% |
-| `fabrication_rate` | 62.5% | 62.5% |
-| `silent_guess_rate` | 31.2% | 31.2% |
-| `collateral_write_rate` | 3.1% | 3.1% |
-| `over_refusal_rate` | 10.9% | 10.9% |
-| `completion_rate` | 75.0% | 75.0% |
+| metric | n | vendor GGUF (external reference) | converted base, EOS fixed |
+|---|---:|---:|---:|
+| `parse_success_rate` | 96 | 100.0% | 100.0% |
+| `format_strict_rate` | 96 | 100.0% | 100.0% |
+| `fabrication_rate` | 16 | 62.5% | 62.5% |
+| `silent_guess_rate` | 16 | 31.2% | 31.2% |
+| `collateral_write_rate` | 32 | 3.1% | 3.1% |
+| `over_refusal_rate` | 64 | 10.9% | 10.9% |
+| `completion_rate` | 64 | 75.0% | 75.0% |
 
 All seven metrics identical, three identical replicates each. Before the fix the
 same pipeline gave 82.3% parse and 0.0% strict format and disagreed with the
@@ -260,15 +260,15 @@ failing to parse. The model's judgement never changed.
 
 With the serving bug gone, the "refusal collapse" disappears entirely:
 
-| metric | base | P1 DPO | balanced DPO | full-task SFT |
-|---|---:|---:|---:|---:|
-| `parse_success_rate` | 100.0% | 100.0% | 100.0% | 100.0% |
-| `format_strict_rate` | 100.0% | 100.0% | 100.0% | 100.0% |
-| `fabrication_rate` | 62.5% | 62.5% | 62.5% | 56.2% |
-| `silent_guess_rate` | 31.2% | 31.2% | 37.5% | 18.8% |
-| `collateral_write_rate` | 3.1% | 0.0% | 0.0% | 3.1% |
-| `over_refusal_rate` | 10.9% | 10.9% | 10.9% | 10.9% |
-| `completion_rate` | 75.0% | 75.0% | 75.0% | 75.0% |
+| metric | n | base | P1 DPO | balanced DPO | full-task SFT |
+|---|---:|---:|---:|---:|---:|
+| `parse_success_rate` | 96 | 100.0% | 100.0% | 100.0% | 100.0% |
+| `format_strict_rate` | 96 | 100.0% | 100.0% | 100.0% | 100.0% |
+| `fabrication_rate` | 16 | 62.5% | 62.5% | 62.5% | 56.2% |
+| `silent_guess_rate` | 16 | 31.2% | 31.2% | 37.5% | 18.8% |
+| `collateral_write_rate` | 32 | 3.1% | 0.0% | 0.0% | 3.1% |
+| `over_refusal_rate` | 64 | 10.9% | 10.9% | 10.9% | 10.9% |
+| `completion_rate` | 64 | 75.0% | 75.0% | 75.0% | 75.0% |
 
 Compare this with the numbers that the same three adapters produced on the
 Hugging Face path: 93.75% over-refusal and 6.25% completion for all of them,
@@ -336,6 +336,44 @@ So the full-set table above and this one together give the complete picture:
 The entire apparent improvement was memorisation of the three specific items it
 had been shown the answers to. On unseen sheets the adapter is
 indistinguishable from the base model.
+
+### Paired statistics, both ways
+
+Rates hide how few tasks are moving, so here are the 2x2 tables for silent
+guessing — the metric that moved most — with an exact McNemar test on the
+discordant pairs. `scripts/paired_analysis.py` prints these for every metric.
+
+**Measured on the training data (n=16 ambiguity tasks):**
+
+| | SFT guessed | SFT clarified |
+|---|---:|---:|
+| **base guessed** | 3 | 2 |
+| **base clarified** | 0 | 11 |
+
+31.2% to 18.8%. Two discordant pairs, both improving, zero regressing. Exact
+McNemar two-sided **p = 0.50** (one-sided 0.25, and one-sided is only
+defensible if the direction was predicted before seeing the data). **Not
+significant.** The whole of this "improvement" is two task decisions out of
+sixteen, on items the model was trained on.
+
+**Measured on held-out data (n=10 ambiguity tasks):**
+
+| | SFT guessed | SFT clarified |
+|---|---:|---:|
+| **base guessed** | 4 | 0 |
+| **base clarified** | 0 | 6 |
+
+40.0% to 40.0%. **Zero discordant pairs**, so **p = 1.00**. Every other metric
+is the same shape: 0 discordant pairs, p = 1.00. On the contaminated set the
+other metrics give 1 discordant pair for fabrication (p = 1.00) and 0 for
+collateral, over-refusal and completion.
+
+Stated once, plainly: **there is no statistically significant training effect
+anywhere in this project, on contaminated or clean data, and on clean data
+there is no effect at all.** With 7 unanswerable and 10 ambiguity tasks in the
+held-out set, this benchmark could not have detected a small real effect — but
+it is not reporting a small effect it cannot resolve, it is reporting zero
+changed decisions.
 
 **This is the project's training result, stated plainly: none of the three
 interventions produced a measurable grounding improvement that generalises.**
@@ -477,7 +515,7 @@ returned the *same status on all 96 tasks* and their raw replies matched on
 54 of 96 — independent interventions do not converge that precisely. Second,
 and decisively: we ran the **untrained base model** down the same path.
 
-| | over-refusal | completion |
+| | over-refusal (n=64) | completion (n=64) |
 |---|---:|---:|
 | untrained base, HF fp16 path | 93.75% | 6.25% |
 | same model, Ollama Q4_K_M path | 10.9% | 75.0% |
@@ -827,6 +865,27 @@ actually are.
 
 Everything below runs on CPU except the training steps.
 
+### Dependencies
+
+**Scoring a model needs nothing but the Python standard library.** The `plumb/`
+package, the runner's `api`/`stub`/`refuser` backends, and every analysis script
+(`paired_analysis.py`, `split_tasks.py`, `check_contamination.py`,
+`roi_measure.py`, `roi_compare.py`) import only stdlib. That is deliberate: a
+benchmark you cannot run without resolving a dependency tree is a benchmark
+nobody runs.
+
+The optional extras, each imported lazily only when used:
+
+| for | needs |
+|---|---|
+| `--model hf` (local checkpoint instead of an endpoint) | `transformers`, `torch` |
+| inspecting or fixing GGUF metadata | `gguf` |
+| task hygiene review | `curatorkit` |
+| training | `aligntune`, `peft`, `huggingface_hub` |
+
+Python 3.10+. Tested on macOS (Apple M3 Pro) against Ollama, and on Linux/CUDA
+for the training steps.
+
 ### Harness self-tests
 
 Run these first, and after any change to `score.py` or `tasks.py`. They are
@@ -852,6 +911,12 @@ python3 scripts/run.py --model api \
 
 # any OpenAI-compatible endpoint works the same way
 python3 scripts/run.py --model api --api-id <your-model> \
+  --tasks tasks/phase2-curatorkit-generated-96-p2v3.jsonl \
+  --label mine --out runs/mine.jsonl
+
+# a reasoning model needs room, or its thinking overruns the cap, the reply is
+# truncated, and the truncation is scored against your grounding metrics
+python3 scripts/run.py --model api --api-id <reasoning-model> --max-tokens 2500 \
   --tasks tasks/phase2-curatorkit-generated-96-p2v3.jsonl \
   --label mine --out runs/mine.jsonl
 
