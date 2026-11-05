@@ -1,0 +1,25 @@
+{
+  "task_file": "phase2-curatorkit-generated-96-p2v3.jsonl",
+  "tasks": 96,
+  "teacher_model": "qwen3:8b",
+  "teacher_review": "phase2-p2v3-teacher-review.jsonl",
+  "teacher_review_valid": 96,
+  "curatorkit_hygiene_passed": 96,
+  "probe_counts": {
+    "p1_control": 16,
+    "p1_fabrication": 16,
+    "p2_ambiguity": 16,
+    "p2_control": 16,
+    "p3_collateral": 16,
+    "p3_control": 16
+  },
+  "baseline_runs": [
+    "runs/baseline-p2v3-1.metrics.json",
+    "runs/baseline-p2v3-2.metrics.json",
+    "runs/baseline-p2v3-3.metrics.json"
+  ],
+  "comparison_task_file": "phase2-curatorkit-generated-96-p2v4.jsonl",
+  "response_contract_revision": "explicit status decision rule after capability probe",
+  "locked": true,
+  "teacher_generated": true
+}

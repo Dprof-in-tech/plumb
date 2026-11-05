@@ -1,0 +1,9 @@
+{
+  "tasks": 112,
+  "reviewed": 112,
+  "valid": 112,
+  "invalid": 0,
+  "unparseable_or_error": 0,
+  "teacher_model": "qwen3:8b",
+  "prompt_revision": "clarified intentional null expected_answer for unanswerable and ambiguous tasks"
+}

@@ -1,0 +1,17 @@
+{
+  "n_tasks": 12,
+  "fabrication_rate": 0.6667,
+  "silent_guess_rate": 1.0,
+  "collateral_write_rate": 0.0,
+  "over_refusal_rate": 0.0,
+  "completion_rate": 0.6667,
+  "parse_success_rate": 1.0,
+  "format_strict_rate": 1.0,
+  "denominators": {
+    "unanswerable": 3,
+    "answerable": 6,
+    "ambiguous": 3,
+    "with_write_set": 4
+  },
+  "label": "variance-1"
+}

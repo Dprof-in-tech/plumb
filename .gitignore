@@ -147,3 +147,9 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# PLUMB: model weights live on the Hugging Face repo, never in git.
+# The GGUFs are 2.1 GB each and are reproducible from the adapters.
+*.gguf
+runs/ollama-models/
+runs/*/rejected.jsonl
