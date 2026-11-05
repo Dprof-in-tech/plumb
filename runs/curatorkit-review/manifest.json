@@ -1,0 +1,65 @@
+{
+  "pipeline_config_hash": "63c2acbda991943b",
+  "run_timestamp": "2026-11-03T22:33:11.057418Z",
+  "source_files": [],
+  "stage_counts": {
+    "JSONLReader": {
+      "output_count": 0,
+      "rejected_count": 6395
+    },
+    "ExactDeduplicator": {
+      "input_count": 0,
+      "output_count": 0
+    },
+    "TextCleaner": {
+      "input_count": 0,
+      "output_count": 0
+    }
+  },
+  "rejected_breakdown": {
+    "invalid_forced_format:jsonl": 6395
+  },
+  "dedup_stats": {},
+  "minhash_threshold": null,
+  "sampler_stats": null,
+  "token_stats": {
+    "total_prompt_tokens": 0,
+    "total_completion_tokens": 0,
+    "total_tokens": 0
+  },
+  "wall_clock_seconds": 0.107,
+  "tool_versions": {
+    "curatorkit": "0.1.22",
+    "python": "3.13.1"
+  },
+  "diversity_stats": null,
+  "diagnostic_stats": null,
+  "diagnostic_files": [],
+  "provenance": {
+    "schema": "lexsi.provenance/1",
+    "library": "curatorkit",
+    "version": "0.1.22",
+    "git_sha": null,
+    "created_at": "2026-11-03T22:33:11Z",
+    "base_model": null,
+    "method": "curate",
+    "inputs": [
+      {
+        "kind": "dataset",
+        "ref": "tasks/phase2-scaffold.jsonl",
+        "config": null,
+        "provenance": null
+      }
+    ],
+    "params": {
+      "generator_model": null,
+      "judge_model": null,
+      "grpo_scoring_model": null,
+      "export_formats": [
+        "jsonl"
+      ],
+      "output_split": null,
+      "pipeline_config_hash": "63c2acbda991943b"
+    }
+  }
+}

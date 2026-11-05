@@ -1,0 +1,10 @@
+{
+  "fabrication_rate": 100.0,
+  "silent_guess_rate": 100.0,
+  "collateral_write_rate": 0.0,
+  "over_refusal_rate": 0.0,
+  "completion_rate": 41.7,
+  "parse_success_rate": 91.7,
+  "tasks": 12,
+  "label": "smoke"
+}

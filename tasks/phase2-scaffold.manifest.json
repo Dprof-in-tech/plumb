@@ -1,0 +1,14 @@
+{
+  "source": "local deterministic scaffold",
+  "teacher_generated": false,
+  "curatorkit_review_required": true,
+  "tasks": 112,
+  "counts": {
+    "p1_control": 24,
+    "p1_fabrication": 24,
+    "p2_ambiguity": 16,
+    "p2_control": 16,
+    "p3_collateral": 16,
+    "p3_control": 16
+  }
+}

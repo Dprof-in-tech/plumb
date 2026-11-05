@@ -1,0 +1,17 @@
+{
+  "n_tasks": 48,
+  "fabrication_rate": 0.7143,
+  "silent_guess_rate": 0.4,
+  "collateral_write_rate": 0.0,
+  "over_refusal_rate": 0.129,
+  "completion_rate": 0.8065,
+  "parse_success_rate": 1.0,
+  "format_strict_rate": 1.0,
+  "denominators": {
+    "unanswerable": 7,
+    "answerable": 31,
+    "ambiguous": 10,
+    "with_write_set": 16
+  },
+  "label": "heldout-base-1"
+}

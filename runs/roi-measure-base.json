@@ -1,0 +1,787 @@
+{
+  "model": "plumb-base-eosfix",
+  "tasks_measured": 96,
+  "tasks_ok": 96,
+  "prompt_tokens_total": 25963,
+  "completion_tokens_total": 4276,
+  "prompt_tokens_mean": 270.4,
+  "completion_tokens_mean": 44.5,
+  "completion_tokens_median": 36.0,
+  "wall_clock_s": 132.09,
+  "mean_latency_s": 1.376,
+  "decode_tokens_per_s": 32.37,
+  "total_tokens_per_s": 228.93,
+  "finish_reasons": {
+    "stop": 96
+  },
+  "per_task": [
+    {
+      "task_id": "curator-1-001",
+      "prompt_tokens": 281,
+      "completion_tokens": 30,
+      "total_tokens": 311,
+      "latency_s": 3.3316989580052905,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-002",
+      "prompt_tokens": 278,
+      "completion_tokens": 30,
+      "total_tokens": 308,
+      "latency_s": 1.031790999986697,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-003-v2",
+      "prompt_tokens": 282,
+      "completion_tokens": 30,
+      "total_tokens": 312,
+      "latency_s": 1.0434768340201117,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-004",
+      "prompt_tokens": 266,
+      "completion_tokens": 30,
+      "total_tokens": 296,
+      "latency_s": 1.0335535840131342,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-005",
+      "prompt_tokens": 269,
+      "completion_tokens": 41,
+      "total_tokens": 310,
+      "latency_s": 1.2809512500534765,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-006",
+      "prompt_tokens": 269,
+      "completion_tokens": 41,
+      "total_tokens": 310,
+      "latency_s": 1.3108177909743972,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-007",
+      "prompt_tokens": 279,
+      "completion_tokens": 77,
+      "total_tokens": 356,
+      "latency_s": 2.0407514169928618,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-008",
+      "prompt_tokens": 278,
+      "completion_tokens": 29,
+      "total_tokens": 307,
+      "latency_s": 1.0158979169791564,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-009-v2",
+      "prompt_tokens": 282,
+      "completion_tokens": 30,
+      "total_tokens": 312,
+      "latency_s": 1.042967708024662,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-010",
+      "prompt_tokens": 265,
+      "completion_tokens": 29,
+      "total_tokens": 294,
+      "latency_s": 1.0221294999937527,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-011",
+      "prompt_tokens": 267,
+      "completion_tokens": 43,
+      "total_tokens": 310,
+      "latency_s": 1.3062867079861462,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-012",
+      "prompt_tokens": 267,
+      "completion_tokens": 39,
+      "total_tokens": 306,
+      "latency_s": 1.23612575000152,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-013",
+      "prompt_tokens": 279,
+      "completion_tokens": 88,
+      "total_tokens": 367,
+      "latency_s": 2.2386177919688635,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-014",
+      "prompt_tokens": 275,
+      "completion_tokens": 29,
+      "total_tokens": 304,
+      "latency_s": 1.0176359170000069,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-015-v2",
+      "prompt_tokens": 282,
+      "completion_tokens": 61,
+      "total_tokens": 343,
+      "latency_s": 1.6452205420355313,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-016",
+      "prompt_tokens": 264,
+      "completion_tokens": 29,
+      "total_tokens": 293,
+      "latency_s": 1.0112552079954185,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-017",
+      "prompt_tokens": 266,
+      "completion_tokens": 39,
+      "total_tokens": 305,
+      "latency_s": 1.1729370420216583,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-018",
+      "prompt_tokens": 266,
+      "completion_tokens": 39,
+      "total_tokens": 305,
+      "latency_s": 1.2357578329974785,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-019",
+      "prompt_tokens": 260,
+      "completion_tokens": 30,
+      "total_tokens": 290,
+      "latency_s": 1.0135195000329986,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-020",
+      "prompt_tokens": 256,
+      "completion_tokens": 30,
+      "total_tokens": 286,
+      "latency_s": 1.0160685420269147,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-021-v2",
+      "prompt_tokens": 283,
+      "completion_tokens": 61,
+      "total_tokens": 344,
+      "latency_s": 1.6461772909970023,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-022",
+      "prompt_tokens": 268,
+      "completion_tokens": 29,
+      "total_tokens": 297,
+      "latency_s": 1.0118214169633575,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-023",
+      "prompt_tokens": 270,
+      "completion_tokens": 43,
+      "total_tokens": 313,
+      "latency_s": 1.3107993750018068,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-1-024",
+      "prompt_tokens": 271,
+      "completion_tokens": 45,
+      "total_tokens": 316,
+      "latency_s": 1.3272882499732077,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-001",
+      "prompt_tokens": 269,
+      "completion_tokens": 30,
+      "total_tokens": 299,
+      "latency_s": 1.0374022080213763,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-002",
+      "prompt_tokens": 266,
+      "completion_tokens": 30,
+      "total_tokens": 296,
+      "latency_s": 1.0410802079713903,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-003-v2",
+      "prompt_tokens": 283,
+      "completion_tokens": 70,
+      "total_tokens": 353,
+      "latency_s": 1.8081542500294745,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-004",
+      "prompt_tokens": 265,
+      "completion_tokens": 30,
+      "total_tokens": 295,
+      "latency_s": 1.039180874999147,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-005",
+      "prompt_tokens": 267,
+      "completion_tokens": 43,
+      "total_tokens": 310,
+      "latency_s": 1.285089250013698,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-006",
+      "prompt_tokens": 268,
+      "completion_tokens": 41,
+      "total_tokens": 309,
+      "latency_s": 1.2585765830008313,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-007",
+      "prompt_tokens": 267,
+      "completion_tokens": 76,
+      "total_tokens": 343,
+      "latency_s": 1.9259529159753583,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-008",
+      "prompt_tokens": 264,
+      "completion_tokens": 29,
+      "total_tokens": 293,
+      "latency_s": 1.0178107499959879,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-009-v2",
+      "prompt_tokens": 283,
+      "completion_tokens": 69,
+      "total_tokens": 352,
+      "latency_s": 1.8149382499977946,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-010",
+      "prompt_tokens": 265,
+      "completion_tokens": 29,
+      "total_tokens": 294,
+      "latency_s": 1.024219584011007,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-011",
+      "prompt_tokens": 267,
+      "completion_tokens": 39,
+      "total_tokens": 306,
+      "latency_s": 1.2204068750143051,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-012",
+      "prompt_tokens": 267,
+      "completion_tokens": 35,
+      "total_tokens": 302,
+      "latency_s": 1.1437105829827487,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-013",
+      "prompt_tokens": 259,
+      "completion_tokens": 30,
+      "total_tokens": 289,
+      "latency_s": 1.0157656670198776,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-014",
+      "prompt_tokens": 255,
+      "completion_tokens": 30,
+      "total_tokens": 285,
+      "latency_s": 1.022862207959406,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-015-v2",
+      "prompt_tokens": 285,
+      "completion_tokens": 76,
+      "total_tokens": 361,
+      "latency_s": 1.985754832974635,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-016",
+      "prompt_tokens": 267,
+      "completion_tokens": 30,
+      "total_tokens": 297,
+      "latency_s": 1.1101225420134142,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-017",
+      "prompt_tokens": 270,
+      "completion_tokens": 41,
+      "total_tokens": 311,
+      "latency_s": 1.265643041988369,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-018",
+      "prompt_tokens": 270,
+      "completion_tokens": 37,
+      "total_tokens": 307,
+      "latency_s": 1.1900659590028226,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-019",
+      "prompt_tokens": 258,
+      "completion_tokens": 30,
+      "total_tokens": 288,
+      "latency_s": 1.0480962920119055,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-020",
+      "prompt_tokens": 254,
+      "completion_tokens": 30,
+      "total_tokens": 284,
+      "latency_s": 1.033408499963116,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-021-v2",
+      "prompt_tokens": 283,
+      "completion_tokens": 65,
+      "total_tokens": 348,
+      "latency_s": 1.8390540829859674,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-022",
+      "prompt_tokens": 267,
+      "completion_tokens": 30,
+      "total_tokens": 297,
+      "latency_s": 1.059350625029765,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-023",
+      "prompt_tokens": 270,
+      "completion_tokens": 41,
+      "total_tokens": 311,
+      "latency_s": 1.320836708007846,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-2-024",
+      "prompt_tokens": 270,
+      "completion_tokens": 41,
+      "total_tokens": 311,
+      "latency_s": 1.2741444159764796,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-001",
+      "prompt_tokens": 269,
+      "completion_tokens": 30,
+      "total_tokens": 299,
+      "latency_s": 0.6733990830252878,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-002",
+      "prompt_tokens": 266,
+      "completion_tokens": 30,
+      "total_tokens": 296,
+      "latency_s": 0.7196839580428787,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-003-v2",
+      "prompt_tokens": 283,
+      "completion_tokens": 60,
+      "total_tokens": 343,
+      "latency_s": 1.680677917029243,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-004",
+      "prompt_tokens": 265,
+      "completion_tokens": 30,
+      "total_tokens": 295,
+      "latency_s": 0.6948684169910848,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-005",
+      "prompt_tokens": 267,
+      "completion_tokens": 43,
+      "total_tokens": 310,
+      "latency_s": 0.9297824579989538,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-006",
+      "prompt_tokens": 268,
+      "completion_tokens": 41,
+      "total_tokens": 309,
+      "latency_s": 0.8866120420279913,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-007",
+      "prompt_tokens": 268,
+      "completion_tokens": 83,
+      "total_tokens": 351,
+      "latency_s": 2.0978566670091823,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-008",
+      "prompt_tokens": 267,
+      "completion_tokens": 29,
+      "total_tokens": 296,
+      "latency_s": 1.0340120840119198,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-009-v2",
+      "prompt_tokens": 283,
+      "completion_tokens": 104,
+      "total_tokens": 387,
+      "latency_s": 2.5111455000005662,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-010",
+      "prompt_tokens": 265,
+      "completion_tokens": 29,
+      "total_tokens": 294,
+      "latency_s": 1.0770322079770267,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-011",
+      "prompt_tokens": 267,
+      "completion_tokens": 39,
+      "total_tokens": 306,
+      "latency_s": 1.2292584590031765,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-012",
+      "prompt_tokens": 267,
+      "completion_tokens": 39,
+      "total_tokens": 306,
+      "latency_s": 1.240010750014335,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-013",
+      "prompt_tokens": 268,
+      "completion_tokens": 29,
+      "total_tokens": 297,
+      "latency_s": 1.0414323750301264,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-014",
+      "prompt_tokens": 264,
+      "completion_tokens": 29,
+      "total_tokens": 293,
+      "latency_s": 1.0340040840092115,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-015-v2",
+      "prompt_tokens": 283,
+      "completion_tokens": 92,
+      "total_tokens": 375,
+      "latency_s": 2.3233446670346893,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-016",
+      "prompt_tokens": 264,
+      "completion_tokens": 29,
+      "total_tokens": 293,
+      "latency_s": 1.0515209159930237,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-017",
+      "prompt_tokens": 266,
+      "completion_tokens": 43,
+      "total_tokens": 309,
+      "latency_s": 1.3498919580015354,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-018",
+      "prompt_tokens": 266,
+      "completion_tokens": 39,
+      "total_tokens": 305,
+      "latency_s": 1.34825570799876,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-019",
+      "prompt_tokens": 260,
+      "completion_tokens": 30,
+      "total_tokens": 290,
+      "latency_s": 1.126543333986774,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-020",
+      "prompt_tokens": 256,
+      "completion_tokens": 30,
+      "total_tokens": 286,
+      "latency_s": 1.046347124967724,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-021-v2",
+      "prompt_tokens": 283,
+      "completion_tokens": 30,
+      "total_tokens": 313,
+      "latency_s": 1.0993398749851622,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-022",
+      "prompt_tokens": 269,
+      "completion_tokens": 30,
+      "total_tokens": 299,
+      "latency_s": 1.1266763329622336,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-023",
+      "prompt_tokens": 272,
+      "completion_tokens": 41,
+      "total_tokens": 313,
+      "latency_s": 1.332486625004094,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-3-024",
+      "prompt_tokens": 272,
+      "completion_tokens": 45,
+      "total_tokens": 317,
+      "latency_s": 1.3929592079948634,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-001",
+      "prompt_tokens": 281,
+      "completion_tokens": 97,
+      "total_tokens": 378,
+      "latency_s": 2.5656230419990607,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-002",
+      "prompt_tokens": 278,
+      "completion_tokens": 30,
+      "total_tokens": 308,
+      "latency_s": 1.1739039170206524,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-003-v2",
+      "prompt_tokens": 283,
+      "completion_tokens": 61,
+      "total_tokens": 344,
+      "latency_s": 1.8651141669834033,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-004",
+      "prompt_tokens": 266,
+      "completion_tokens": 30,
+      "total_tokens": 296,
+      "latency_s": 1.088147292030044,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-005",
+      "prompt_tokens": 268,
+      "completion_tokens": 80,
+      "total_tokens": 348,
+      "latency_s": 2.181573958019726,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-006",
+      "prompt_tokens": 269,
+      "completion_tokens": 72,
+      "total_tokens": 341,
+      "latency_s": 2.134988667035941,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-007",
+      "prompt_tokens": 278,
+      "completion_tokens": 113,
+      "total_tokens": 391,
+      "latency_s": 3.1584072500118054,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-008",
+      "prompt_tokens": 276,
+      "completion_tokens": 29,
+      "total_tokens": 305,
+      "latency_s": 1.207993042015005,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-009-v2",
+      "prompt_tokens": 283,
+      "completion_tokens": 30,
+      "total_tokens": 313,
+      "latency_s": 1.2099407499772497,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-010",
+      "prompt_tokens": 268,
+      "completion_tokens": 29,
+      "total_tokens": 297,
+      "latency_s": 1.1431212919997051,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-011",
+      "prompt_tokens": 269,
+      "completion_tokens": 101,
+      "total_tokens": 370,
+      "latency_s": 2.6376267499872483,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-012",
+      "prompt_tokens": 270,
+      "completion_tokens": 72,
+      "total_tokens": 342,
+      "latency_s": 1.9465539579978213,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-013",
+      "prompt_tokens": 270,
+      "completion_tokens": 30,
+      "total_tokens": 300,
+      "latency_s": 1.0944151249714196,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-014",
+      "prompt_tokens": 266,
+      "completion_tokens": 30,
+      "total_tokens": 296,
+      "latency_s": 1.0853797500021756,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-015-v2",
+      "prompt_tokens": 283,
+      "completion_tokens": 70,
+      "total_tokens": 353,
+      "latency_s": 1.924301374994684,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-016",
+      "prompt_tokens": 267,
+      "completion_tokens": 29,
+      "total_tokens": 296,
+      "latency_s": 1.1179288339917548,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-017",
+      "prompt_tokens": 269,
+      "completion_tokens": 82,
+      "total_tokens": 351,
+      "latency_s": 2.1562880410347134,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-018",
+      "prompt_tokens": 271,
+      "completion_tokens": 66,
+      "total_tokens": 337,
+      "latency_s": 1.8354245420196094,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-019",
+      "prompt_tokens": 272,
+      "completion_tokens": 29,
+      "total_tokens": 301,
+      "latency_s": 1.0387172910268418,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-020",
+      "prompt_tokens": 266,
+      "completion_tokens": 29,
+      "total_tokens": 295,
+      "latency_s": 1.080157666001469,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-021-v2",
+      "prompt_tokens": 283,
+      "completion_tokens": 30,
+      "total_tokens": 313,
+      "latency_s": 1.0745211249450222,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-022",
+      "prompt_tokens": 267,
+      "completion_tokens": 30,
+      "total_tokens": 297,
+      "latency_s": 1.0554040409624577,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-023",
+      "prompt_tokens": 270,
+      "completion_tokens": 39,
+      "total_tokens": 309,
+      "latency_s": 1.2331983749754727,
+      "finish_reason": "stop"
+    },
+    {
+      "task_id": "curator-4-024",
+      "prompt_tokens": 270,
+      "completion_tokens": 70,
+      "total_tokens": 340,
+      "latency_s": 1.9067132910131477,
+      "finish_reason": "stop"
+    }
+  ]
+}

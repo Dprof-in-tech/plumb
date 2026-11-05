@@ -1,0 +1,17 @@
+{
+  "n_tasks": 16,
+  "fabrication_rate": null,
+  "silent_guess_rate": 1.0,
+  "collateral_write_rate": null,
+  "over_refusal_rate": null,
+  "completion_rate": null,
+  "parse_success_rate": 1.0,
+  "format_strict_rate": 1.0,
+  "denominators": {
+    "unanswerable": 0,
+    "answerable": 0,
+    "ambiguous": 16,
+    "with_write_set": 0
+  },
+  "label": "tier-tinyaya-unannounced"
+}

@@ -1,0 +1,8 @@
+{
+  "tasks": 48,
+  "reviewed": 48,
+  "valid": 48,
+  "invalid": 0,
+  "unparseable_or_error": 0,
+  "teacher_model": "qwen3:8b"
+}
