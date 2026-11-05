@@ -55,6 +55,16 @@ Two more that decide whether the first three mean anything:
 | **`over_refusal_rate` high with low `completion_rate`** | Your safety work has produced a model that does nothing. Do not ship it and do not report its headline metrics as a win. We produced exactly this model three times (see below) and only these two metrics caught it. |
 | **`parse_success_rate` below 100%** | Fix your serving stack before you measure anything about grounding. We lost a day to this and the cause was one wrong integer in a metadata field. |
 
+**The one change to make first.** Before any training, state your abstention
+rule explicitly in the prompt — when to answer, when to decline, when to ask —
+rather than assuming the model infers it from the response schema. On Tiny Aya
+that cut fabrication from 100% to 62.5% (p = 0.031), replicated three times.
+Then measure `over_refusal_rate`, because the same change made the model decline
+7 of 64 answerable tasks it had previously answered (p = 0.016). It is a trade
+worth taking when a wrong number is more expensive than an extra question, and
+you cannot see the cost without the guard metric. Details and the paired tables
+are below.
+
 The thresholds above are judgement calls for a product decision, not
 statistically derived cut-offs. The defensible claim is narrower and more
 useful: **these are the five numbers to look at, in this order, and here is
@@ -198,9 +208,72 @@ code; when the scorer changes, both sides of the comparison move together.
 
 ---
 
+## The prompt intervention: the one thing that moved a safety metric
+
+This is the only statistically significant metric change in the project, and it
+is not from training. It came out of failure 2 below, where we discovered that a
+100% fabrication rate was measuring our own prompt rather than the model. The
+fix was to add an explicit decision rule to the response contract — four lines
+telling the model when to choose `answered`, `declined` or
+`needs_clarification`, rather than merely listing the three values.
+
+Same model, same serving path, same 96 tasks, three identical replicates on each
+side (`runs/baseline-1/2/3` against `runs/baseline-promptfix-1/2/3`):
+
+| metric | n | no decision rule | with decision rule | discordant pairs | exact McNemar |
+|---|---:|---:|---:|---:|---:|
+| `fabrication_rate` | 16 | 100.0% | **62.5%** | 6 → 0 | **p = 0.031** |
+| `over_refusal_rate` | 64 | 0.0% | **10.9%** | 0 → 7 | **p = 0.016** |
+| `completion_rate` | 64 | 78.1% | 75.0% | 2 | p = 0.50 |
+| `collateral_write_rate` | 32 | 0.0% | 3.1% | 1 | p = 1.00 |
+| `silent_guess_rate` | 16 | 100.0% | 100.0% | 0 | p = 1.00 |
+
+**Read both significant rows together.** The decision rule fixed 6 of 16
+unanswerable tasks the model had been confidently answering — a 37.5 point drop
+in fabrication, significant at p = 0.031. It also caused the model to decline 7
+of 64 answerable tasks it had previously answered correctly, significant at
+p = 0.016. **It is a trade, not a free win: roughly one answerable task broken
+for every unanswerable task fixed.**
+
+That is worth stating precisely, because the tempting summary — "adding a
+decision rule halves fabrication on a 3B model at zero training cost" — is true
+about the first number and false about the cost. Nothing in the three headline
+metrics would have shown the cost. `over_refusal_rate` is the only reason we can
+see it, and it moved with a smaller p-value than the improvement did.
+
+**Whether the trade is worth taking is a deployment question, not a benchmark
+question.** It depends on the relative cost of the two errors in your product:
+
+- If a wrong number propagates into a report, a filing or a forecast, a
+  fabricated answer is far more expensive than an unnecessary clarification
+  request. Take the trade.
+- If the agent sits in an interactive loop where the user can immediately
+  correct a wrong answer, but each spurious question costs a round trip and
+  erodes trust in the tool, the trade is worse than it looks.
+- Either way, measure both. A team that measured only fabrication would deploy
+  this and report a 37.5 point safety improvement while having made the agent
+  meaningfully less useful.
+
+The practical advice a reader can act on this afternoon: **state your abstention
+rule explicitly in the prompt rather than assuming the model infers it from the
+schema, and measure over-refusal when you do.** The capability probe in failure
+2 showed Tiny Aya could always produce `declined` — it had simply never been
+told when to. But the same change that unlocks abstention also makes the model
+abstain when it should not, and at 3.35B it has no fine-grained sense of which
+is which.
+
+Two caveats. This comparison runs on the original 96-task set, before the P2
+redesign, which is why `silent_guess_rate` is pinned at 100% on both sides — the
+original P2 tasks had a defensible default and the model took it every time.
+Both sides use the identical task file, so the paired comparison is valid, but
+the silent-guessing row carries no information here. And this is a prompt
+change, not training, so it does not satisfy a fine-tuning track on its own.
+
 ## The three interventions
 
-All three used AlignTune on an A10G. All three are negative results.
+All three used AlignTune on an A10G. All three are negative results. The
+prompt intervention above is separate and is the only significant movement in
+the project.
 
 | intervention | data | recipe | result on the corrected path |
 |---|---|---|---|
@@ -370,7 +443,9 @@ collateral, over-refusal and completion.
 
 Stated once, plainly: **there is no statistically significant training effect
 anywhere in this project, on contaminated or clean data, and on clean data
-there is no effect at all.** With 7 unanswerable and 10 ambiguity tasks in the
+there is no effect at all.** (The prompt decision rule above *is* significant at
+p = 0.031, but that is a prompt change, not a fine-tune, and it is reported
+separately for exactly that reason.) With 7 unanswerable and 10 ambiguity tasks in the
 held-out set, this benchmark could not have detected a small real effect — but
 it is not reporting a small effect it cannot resolve, it is reporting zero
 changed decisions.
@@ -817,13 +892,17 @@ sheets across 96 tasks. That is fine for measuring a model but it makes the set
 awkward to split, and it is the reason the held-out split had to be grouped. A
 future version should generate every task from a distinct sheet.
 
-**There is no positive training result.** Three interventions, all negative:
-two DPO recipes that are inert or slightly harmful, and a full-task SFT adapter
-that changes no decision on any of 48 held-out tasks. The only numbers that
-looked like a win were measured on the training data. We report this as the
-outcome rather than as a setback, but it does mean PLUMB demonstrates a
-benchmark and a measurement methodology, not a technique for improving
-grounding.
+**There is no positive *training* result.** Three training interventions, all
+negative: two DPO recipes that are inert or slightly harmful, and a full-task
+SFT adapter that changes no decision on any of 48 held-out tasks. The only
+training numbers that looked like a win were measured on the training data.
+
+The project does have one significant result, and it is a prompt change rather
+than a fine-tune: an explicit decision rule cut fabrication 37.5 points
+(p = 0.031) while raising over-refusal 10.9 points (p = 0.016). That is a real,
+replicated, actionable finding, and it is also the clearest demonstration of why
+the guard metrics exist. But it is prompt engineering, so a reader looking for
+evidence that *training* improves grounding will not find it here.
 
 **The held-out denominators are small and uneven.** 7 unanswerable, 10
 ambiguous, 16 write tasks, because grouping to prevent leakage cost the even
