@@ -1,0 +1,17 @@
+{
+  "n_tasks": 96,
+  "fabrication_rate": 0.0,
+  "silent_guess_rate": 0.0,
+  "collateral_write_rate": 0.0,
+  "over_refusal_rate": 1.0,
+  "completion_rate": 0.0,
+  "parse_success_rate": 1.0,
+  "format_strict_rate": 1.0,
+  "denominators": {
+    "unanswerable": 16,
+    "answerable": 64,
+    "ambiguous": 16,
+    "with_write_set": 32
+  },
+  "label": "sweep-earth-1"
+}
