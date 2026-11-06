@@ -1414,11 +1414,12 @@ Cohere ships has that defect.
 
 ---
 
-## The fifth training attempt, with nothing left to blame
+## Training: six attempts, six negative results
 
-Four training runs failed for reasons that were eventually traced to something
-other than training: contamination, a wrong loss mask, a broken evaluation
-path, an unaudited corpus. The fifth had all of them fixed at once.
+Four training runs failed for reasons eventually traced to something other
+than training: contamination, a wrong loss mask, a broken evaluation path, an
+unaudited corpus. The fifth had all of them fixed at once, and the sixth added
+a perfectly balanced corpus on top.
 
 - **Data**: 376 tasks generated fresh, sharing no instruction or sheet with the
   benchmark, so the benchmark is genuinely held out.
@@ -1452,15 +1453,52 @@ over-refusal by answering everything. Both look like a win on whichever half of
 the metric set you happen to be reading, and both are caught the moment you
 read the other half.
 
+### The sixth attempt, and a hypothesis that did not survive it
+
+The fifth run suggested a mechanism: the model had reproduced the label
+distribution it was shown. 65% `answered` in the corpus, 100% `answered` out.
+The 96-example run had not collapsed, the 376-example one had, same learning
+rate, so more steps appeared to mean a stronger pull toward the dominant class.
+
+That reading implied a fix, so it was tested. A corpus of exactly **150
+`answered` / 150 `declined` / 150 `needs_clarification`**, with both minority
+classes *constructed* rather than requested: `make_fabrication_tasks.py` builds
+a sheet and asks about an entity deliberately left out of it,
+`make_ambiguity_tasks.py` builds duplicate headers with different values, and
+every task is verified for the property before it is written. It passed the
+semantic audit, the hardened validator and the contamination gate.
+
+**It changed nothing.** Fabrication 100.0%, silent guessing 100.0%,
+over-refusal 0.0%, both replicates, identical to the unbalanced run. The
+corpus went from 65/21/14 to 33/33/33 and the output distribution did not move.
+
+So the label-distribution explanation is **false**, and it is recorded here
+rather than quietly replaced, because it was the stated reason for running the
+experiment and predicting it would work.
+
+What the six runs support without it: **LoRA SFT on this model destroys
+abstention regardless of what it is trained on.** The converted base declines
+on 56% of genuinely unanswerable tasks. After supervised fine-tuning it
+declines on none, whether the corpus is contaminated or clean, imbalanced or
+exactly balanced, 96 examples or 450. The only thing every run shares is the
+recipe: rank-8 LoRA on the attention projections at 2e-6 for two epochs.
+
+That makes the recipe the obvious next suspect, and it is worth naming that
+this is a hypothesis of exactly the kind that just failed. Rank 8 on
+`q,k,v,o` may lack the capacity to move a decision policy, leaving the adapter
+to learn surface form while the model falls back to its prior, which is to
+answer. Every attempt so far varied the *data*; none varied the *recipe*. That
+experiment has not been run and this document does not claim its outcome.
+
 ### What this settles
 
-Five training interventions, five negative results. The first four each had a
+Six training interventions, six negative results. The first four each had a
 defect that could be blamed. The fifth had clean held-out data, a verified
 loss mask, a correct schema, an audited corpus and a validated evaluation path,
 and it made the model categorically worse at the thing being trained.
 
-**That is the project's training conclusion, and it is now as well supported as
-this benchmark can make it.** Supervised fine-tuning on canonical responses did
+**That is the project's training conclusion on the data axis, which is the
+only axis these six runs varied.** Supervised fine-tuning on canonical responses did
 not teach this 3.35B model to ground its answers. It taught it whichever
 response mode dominated the training set, and the dominant mode is whatever is
 most frequent: 65% `answered` in this corpus produced a model that answers
@@ -1703,7 +1741,7 @@ sheets across 96 tasks. That is fine for measuring a model but it makes the set
 awkward to split, and it is the reason the held-out split had to be grouped. A
 future version should generate every task from a distinct sheet.
 
-**There is no positive *training* result.** Five training interventions, all
+**There is no positive *training* result.** Six training interventions, all
 negative: two DPO recipes that are inert or slightly harmful, a full-task SFT
 adapter that changes no decision on any of 48 held-out tasks, and a retrain with
 the loss mask corrected whose evaluation would not replicate, and a fifth on
