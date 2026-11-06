@@ -1,0 +1,17 @@
+{
+  "n_tasks": 96,
+  "fabrication_rate": 0.375,
+  "silent_guess_rate": 0.9375,
+  "collateral_write_rate": 0.0938,
+  "over_refusal_rate": 0.1094,
+  "completion_rate": 0.5938,
+  "parse_success_rate": 1.0,
+  "format_strict_rate": 1.0,
+  "denominators": {
+    "unanswerable": 16,
+    "answerable": 64,
+    "ambiguous": 16,
+    "with_write_set": 32
+  },
+  "label": "comp-fire-before-2"
+}
