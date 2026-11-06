@@ -14,7 +14,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from plumb.ambiguity import Collision, announce, describe, find_header_collisions
+from plumb.ambiguity import (Collision, announce, describe,
+                             find_header_collisions, infer_header_row)
 
 FAILED = []
 
@@ -88,6 +89,34 @@ c = find_header_collisions({"A1": "Revenue", "B1": "Revenue"})[0]
 check("exact flag true for identical text", c.exact is True)
 c2 = find_header_collisions({"A1": "Revenue", "B1": "revenue"})[0]
 check("exact flag false for folded match", c2.exact is False)
+
+print("\n=== header row is inferred, not assumed ===")
+# Regression guard. The shipped detector assumed row 1, so any sheet with a
+# title row or an export offset silently reported "no collisions". 116 of 414
+# generated sheets put headers in row 2; the benchmark has none, so its tests
+# passed 16/16 while this went untested.
+check("row-1 headers inferred",
+      infer_header_row({"A1": "Month", "B1": "Sales", "A2": "Jan", "B2": "1"}) == 1)
+check("row-2 headers inferred when row 1 is empty",
+      infer_header_row({"B2": "Month", "C2": "Sales", "B3": "Jan", "C3": "1"}) == 2)
+check("a one-cell title row is not mistaken for headers",
+      infer_header_row({"B1": "Q3 Sales Report", "B2": "Month", "C2": "Revenue",
+                        "B3": "January", "C3": "1000"}) == 2)
+check("collision found under a title row",
+      len(find_header_collisions({"B1": "Q3 Sales Report", "B2": "Month",
+                                  "C2": "Revenue", "D2": "Revenue",
+                                  "B3": "Jan", "C3": "1", "D3": "2"})) == 1)
+check("collision found with row-2 headers",
+      len(find_header_collisions({"B2": "Revenue", "C2": "Revenue",
+                                  "B3": "1", "C3": "2"})) == 1)
+check("no false positive on row-2 headers without a collision",
+      find_header_collisions({"B2": "Month", "C2": "Revenue", "D2": "Units",
+                              "B3": "Jan", "C3": "1", "D3": "2"}) == [])
+check("numeric data rows are not read as headers",
+      infer_header_row({"A1": "Month", "B1": "Sales", "A2": "100", "B2": "100"}) == 1)
+check("explicit header_row still overrides inference",
+      find_header_collisions({"A3": "X", "B3": "X"}, header_row=3) != [])
+check("empty sheet infers nothing", infer_header_row({}) is None)
 
 print("\n=== announcement wording ===")
 msg = announce(find_header_collisions({"A1": "Month", "B1": "Revenue", "C1": "Revenue"}))

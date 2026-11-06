@@ -100,7 +100,7 @@ cut fabrication 37.5 points at p = 0.031, while raising over-refusal 10.9
 points at p = 0.016, which is a trade rather than a win.
 
 So this is a benchmark and a measurement methodology, not a technique for
-making models more grounded. The seven measurement failures below are the
+making models more grounded. The nine measurement failures below are the
 contribution, and they are the reason to trust the four findings above.
 
 ---
@@ -878,7 +878,7 @@ metrics, matched controls in every probe, and an explicit rule that a baseline
 is never re-run with changed scoring code. It was built by someone who had
 already been burned by a plausible-and-wrong number in production.
 
-It still produced seven invalid measurements in four days. Each was caught by a
+It still produced nine invalid measurements in five days. Each was caught by a
 control that existed because the previous one had gone wrong. None of them were
 caught by the metric itself looking suspicious, in four of the five cases the
 numbers looked entirely reasonable.
@@ -1172,9 +1172,55 @@ now runs it on rented hardware and validates itself by re-running the converted
 base and requiring it to reproduce the recorded row before any new number from
 that environment is trusted. It does, on every metric.
 
+### 8. A fresh training corpus passed every check and contained nothing
+**6 Nov.** With the loss mask fixed and contamination understood, the one
+remaining way to run the training experiment correctly was on data disjoint
+from the benchmark. A non-Cohere teacher generated 414 tasks across twelve
+spreadsheet domains. Every gate passed: 0 malformed, 18 near-duplicates
+dropped, **0 overlapping the benchmark**, probe categories balanced, every
+`expected_answer` null exactly where it had to be, every write task carrying a
+`write_set`.
+
+Then we pointed the shipped ambiguity detector at it. **Zero of 75
+`p2_ambiguity` tasks contained a header collision.** The generator prompt still
+carried the pre-redesign P2 spec, "include two plausible columns", so the
+teacher produced the order-date-versus-ship-date pattern that failure 3
+established is *conventional* ambiguity, where answering is correct. Some were
+worse than weak: "Which month had the highest revenue?" is plainly answerable
+from the sheet.
+
+Training on that corpus would have taught the model to ask for clarification
+where it should answer. That is the `water` failure mode: a high abstention
+prior that improves every safety metric and makes the agent worse. The gates
+could not see it because **structural validity is not semantic validity**. A
+task can have the right fields, the right flags, a balanced probe distribution,
+no contamination, and still not contain the thing its label claims.
+
+`scripts/generate_fresh_tasks.py` now audits the corpus for the property it
+asserts and refuses to emit one that fails. The locked benchmark scores 16/16
+on that audit; the discarded corpus scored 0/75.
+
+### 9. The detector that caught it had the same blind spot
+**6 Nov.** Checking the corpus surfaced something about the tool doing the
+checking. 116 of those 414 sheets put their headers in **row 2**, under a title
+row. `find_header_collisions` assumed `header_row=1`, so on those sheets it
+would have reported "no collisions" with complete confidence.
+
+A false negative in a detector whose entire job is catching a failure the model
+cannot see, and the silent kind. Its test suite passed 16/16 throughout,
+because all 96 benchmark sheets start at row 1 and the limitation was never
+exercised. The benchmark could not catch it because the benchmark shares the
+assumption.
+
+The detector now infers the header row, skipping one-cell title rows and
+numeric data rows, with regression tests on sheets the benchmark does not
+contain. Nothing already published was wrong, since the measured 100.0% to
+0.0% result used row-1 sheets, but the tool would have under-detected on real
+spreadsheets, which commonly have a title row.
+
 ### What the sequence argues
 
-Seven invalid measurements in four days, on a project built to be careful,
+Nine invalid measurements in five days, on a project built to be careful,
 caught by controls rather than by the numbers looking wrong:
 
 | # | what was actually being measured | caught by |
@@ -1186,19 +1232,27 @@ caught by controls rather than by the numbers looking wrong:
 | 5 | one wrong integer in GGUF metadata | a vendor artifact as an external reference |
 | 6 | memorisation of the test set | checking training-data provenance against the benchmark |
 | 7 | the model's determinism, read as the harness's | a pre-registered replication requirement |
+| 8 | a corpus's structure, read as its meaning | pointing the shipped detector at the training data |
+| 9 | row-1 sheets only, read as all sheets | a corpus that did not share the benchmark's layout |
 
 The pattern is that **every one was caught by a control, and not one was caught
-by a metric looking implausible.** Six of the seven produced numbers a reviewer
+by a metric looking implausible.** Eight of the nine produced numbers a reviewer
 would have accepted: a high fabrication rate for a 3B model, a refusal collapse
 after safety training, two models agreeing, a modest well-replicated training
-improvement, and a set of identical replicates. The one that did look obviously
-broken (0.0% strict format) turned out to be neither grounding nor training,
-but a serving bug.
+improvement, a set of identical replicates, and a training corpus that passed
+every structural gate. The one that did look obviously broken (0.0% strict
+format) turned out to be neither grounding nor training, but a serving bug.
 
 Replication does not rescue any of this. Failures 4, 5 and 6 reproduced
 perfectly across three runs each, because a broken measurement is as
 deterministic as a working one, and failure 7 is the case where replication
 *itself* was the broken control.
+
+Nor does validation, which is the lesson of failures 8 and 9. A corpus can pass
+every structural gate and contain nothing; a detector can pass every test and
+share the blind spot of the data it was tested on. Both were caught by checking
+one artifact against another built for a different purpose, which is the only
+move in this document that reliably worked.
 
 The generalisable claim is not "we were sloppy". It is that in agent
 evaluation, **the measurement apparatus fails more often than the model does,
@@ -1476,11 +1530,13 @@ dedicated instance billed around the clock at $724/month, break-even is:
 
 Below roughly **1.5 million tasks a month**, per-token billing is cheaper than
 a dedicated A10G, before counting the engineer-hours this repository is itself
-evidence of. Of the seven measurement failures documented above, five were
-tooling or serving problems rather than model problems: a parser, a generation
-cap, a mismatched evaluation path, one wrong integer of GGUF metadata, and an
-evaluation chain pinned to a single laptop that crashed mid-run. That is the
-real cost of self-hosting and it appears in neither column.
+evidence of. Of the nine measurement failures documented above, seven were
+tooling, data or serving problems rather than model problems: a parser, a
+generation cap, a mismatched evaluation path, one wrong integer of GGUF
+metadata, an evaluation chain pinned to a single laptop that crashed mid-run, a
+training corpus that passed every gate and contained nothing, and a detector
+that assumed every sheet starts at row 1. That is the real cost of
+self-hosting, and it appears in neither column.
 
 Self-hosting wins on three things that are not price: data residency, a frozen
 model that will not be deprecated underneath you, and the ability to fine-tune.
