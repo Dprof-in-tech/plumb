@@ -248,6 +248,15 @@ function findingHTML(){
   the benchmark. That is a high abstention prior, not detection, and the two
   are indistinguishable without a control tier for ambiguity you are supposed to
   ignore.</p>
+  <p><strong>A purpose-built 14B spreadsheet model does not fabricate, but its
+  output format hides that it knows.</strong> Run against
+  <a href="https://huggingface.co/trydecidedotai/Dax-1">Dax-1</a>, which reports
+  91.7% strict workbook accuracy, these probes found zero fabrications in 36
+  tasks. On unanswerable requests it returned an empty string six times out of
+  six rather than invent a value: its patch schema has no field for declining.
+  Given one, it refuses precisely, naming the two colliding columns. Under the
+  documented contract it silently picked a column on 5 of 5 ambiguous tasks.
+  Grounding was suppressed by the contract, not missing from the weights.</p>
   <p><strong>Seven of the benchmark's own "unanswerable" tasks were
   answerable.</strong> A <code>p1_fabrication</code> task asking for July's
   invoice amount, on a sheet containing July and the amount, is answerable: the

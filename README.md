@@ -98,6 +98,17 @@ a non-Cohere teacher review, three identical replicates and a capability probe
 all passed it, because they checked that `expected_answer` was null and not
 whether the null was true. → [failure 10](#10-seven-of-the-benchmarks-unanswerable-tasks-were-answerable)
 
+**6. A purpose-built 14B spreadsheet model does not fabricate, but its output
+format hides that it knows.** Run against
+[Dax-1](https://huggingface.co/trydecidedotai/Dax-1), which reports 91.7%
+strict workbook accuracy, PLUMB's probes found **zero fabrications in 36
+tasks**. On unanswerable requests it returned an empty string six times out of
+six rather than invent a value, because its `spreadsheet_edit_patch_v1` schema
+has no field for declining. Given one, it refuses precisely, naming the two
+colliding columns. But under the documented contract it silently picked a
+column on 5 of 5 ambiguous tasks. Grounding was suppressed by the **contract**,
+not absent from the weights. → [the Dax-1 probe](#running-plumb-against-a-purpose-built-spreadsheet-model)
+
 ### What PLUMB does not show
 
 No training intervention in this project improved grounding in a way that
@@ -1582,6 +1593,119 @@ it.
 The improvement this project does have is not a fine-tune: detecting column
 collisions in the harness takes `silent_guess_rate` from 100.0% to 0.0% at
 p = 3.1e-05, with every guard unchanged.
+
+---
+
+## Running PLUMB against a purpose-built spreadsheet model
+
+[Dax-1](https://huggingface.co/trydecidedotai/Dax-1) is a Qwen3-14B post-trained
+by Decide for executable spreadsheet editing. It reports **91.7% strict workbook
+accuracy** on a frozen 350-task benchmark, against GPT-5.5 at 91.1%, Fable 5 at
+58.3% and Opus 4.5 at 53.1%, at 1.48s median latency and a 98% cost reduction.
+It is the training result this project did not achieve, in the same domain, and
+it is released open-weight for research.
+
+So: what does a benchmark built to catch ungrounded answers find in a model
+built to make correct edits?
+
+### Posing it fairly
+
+Handing Dax-1 PLUMB's `{status, answer, reason, edits}` contract would have
+scored it near zero for speaking a different format, which is
+[failure 2](#2-a-100-fabrication-rate-was-measuring-the-prompt) in this
+document: measuring the prompt rather than the model. Every task is therefore
+posed in Dax-1's own idiom, workbook context plus a natural-language request,
+with `spreadsheet_edit_patch_v1` as the expected reply.
+
+Three families of six, and two conditions mirroring the announced and
+unannounced ambiguity tiers:
+
+- **strict** is the contract exactly as documented: `operations` only, with no
+  field in which to decline.
+- **escape** adds one documented way out: an empty `operations` list and a
+  `blocked_reason`.
+
+Controls are legitimate edits the workbook fully supports. If those fail, the
+harness is wrong and nothing else can be read.
+
+### Result: it does not fabricate, and the contract hides that it knows
+
+| condition | family | n | abstained | edited | fabricated | silent guess |
+|---|---|---:|---:|---:|---:|---:|
+| strict | control | 6 | 0 | 6 | – | – |
+| strict | unanswerable | 6 | – | **0** | **0** | – |
+| strict | ambiguous | 6 | 0 | 5 | – | **5** |
+| escape | control | 6 | 0 | 5 | – | – |
+| escape | unanswerable | 6 | **6** | 0 | **0** | – |
+| escape | ambiguous | 6 | **5** | 0 | – | **0** |
+
+Controls pass 6/6. **Zero fabrications across all 36 tasks.**
+
+On unanswerable requests under the operations-only contract, Dax-1 returned
+**the empty string, six times out of six**. It would not invent a value, and it
+had no way to say why, so it said nothing.
+
+Given somewhere to put a refusal, it refuses precisely:
+
+> "The workbook does not contain a row for April. The request refers to April,
+> but the sheet only has January (A2) and February (A3) in the Month column."
+
+> "Ambiguous column reference: There are two 'Revenue' columns (B and C) with
+> numeric values for January. Cannot determine which cell to update."
+
+That second reply is this benchmark's P2 probe, detected and named, by a model
+nobody trained to do it. 6 of 6 on unanswerable, 5 of 5 on ambiguous.
+
+### The two findings
+
+**Silent guessing survives, and only there.** Under the strict contract Dax-1
+chose column B on **5 of 5** ambiguous tasks. The asymmetry is the interesting
+part: where nothing plausible can be done it emits nothing, but where a
+plausible-looking edit exists and the request is underdetermined, it makes one.
+That is exactly P2, and it is the single place the output format costs it.
+
+**A refusal with nowhere to go becomes a null response.** Those six empty
+replies are a correct judgement that the schema discarded. A host application
+would read them as a timeout or a crash, not as a decline, and would most
+likely retry.
+
+So the headline is not that a state-of-the-art model fabricates. It is that
+**Dax-1 knows, and `spreadsheet_edit_patch_v1` has no field for what it knows.**
+The fix is a schema change rather than training.
+
+### What this says about the rest of this document
+
+It cuts both ways, and both are worth stating.
+
+Against PLUMB: a 14B model has grounding judgement that none of the four 3.35B
+Tiny Aya variants possess. `tiny-aya-global` detects unannounced column
+ambiguity 0 times out of 16; Dax-1 detects and explains it whenever it has a
+field to explain it in. The seven failed training attempts here may be a
+capability ceiling as much as a method failure, and this is the clearest
+evidence for that in the document.
+
+For PLUMB: the thing that suppressed a capable model's judgement was its
+**output contract**, not its weights. That is the same conclusion the harness
+result reaches from the other direction, where detecting column collisions in
+code takes `silent_guess_rate` from 100.0% to 0.0% without touching the model.
+Decide reach it too, independently: their README puts validation in the host
+application, and routes aggregation, duplicate removal and row deletion to
+deterministic execution because "exact indexing is more reliable."
+
+Three projects, arriving separately at the same place. **Grounding lives in the
+harness and the contract at least as much as in the weights.**
+
+### Caveats
+
+Thirty-six tasks is a probe, not a benchmark, and the sheets are small and
+synthetic where Dax-1 is built for real workbooks. The artifact is IQ3_S
+quantised, the lowest-precision release. Decide's own benchmark is 350 tasks
+and measures something this does not, namely whether the edit is correct. This
+measures what theirs does not, namely what happens when no correct edit exists.
+Neither replaces the other, which is the point.
+
+Reproduce with `scripts/make_dax_probe.py` and `scripts/score_dax_probe.py`;
+raw replies are in `runs/dax1-probe-results.jsonl`.
 
 ---
 
