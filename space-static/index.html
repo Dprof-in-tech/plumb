@@ -364,10 +364,13 @@ function checklistHTML(){
   to run and would have caught it on day one.</li>
   </ol>
   <p>A fifth, specific to table agents: <strong>no 3.35B model in this family
-  notices that two columns share a header.</strong> Detect it in your harness
-  with <code>plumb.ambiguity.find_header_collisions()</code> and say so in the
-  prompt; that is measured to take <code>global</code> from 0/16 to 11/16 and
-  <code>fire</code> from 1/16 to 16/16.</p>`;
+  notices that two columns share a header.</strong> <code>global</code> asks
+  0/16 and <code>fire</code> 1/16 when nothing flags the collision. Detect it in
+  your harness with <code>plumb.ambiguity.find_header_collisions()</code> and
+  announce it, and <strong>both go to 16/16</strong>, replicated twice. A schema
+  check and one sentence fix the failure mode completely, with no training and
+  no larger model. The sentence has to say what to do, not just that the
+  ambiguity exists: naming it alone reaches 11/16 on <code>global</code>.</p>`;
 }
 
 function score(){
