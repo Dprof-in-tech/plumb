@@ -259,6 +259,43 @@ same answerability behaviour, not two independent wins. When they move together
 in opposite directions, that is one finding, not two.
 ---
 
+## Measurement noise floor
+
+Because this project's replicate-identity assumption turned out to be unsafe
+(failure 7), run-to-run variance is now measured rather than assumed. Across
+four vendor models, two replicates each, on the locked 96 tasks:
+
+| metric | n | observed spread across replicates | one task |
+|---|---:|---:|---:|
+| `fabrication_rate` | 16 | **6.2 pp** (3 of 4 variants) | 6.25 pp |
+| `silent_guess_rate` | 16 | **0.0 pp** (all 4 variants) | 6.25 pp |
+| `collateral_write_rate` | 32 | 0.0 pp | 3.12 pp |
+| `over_refusal_rate` | 64 | 1.6 pp | 1.56 pp |
+| `completion_rate` | 64 | 1.6 pp | 1.56 pp |
+
+So the floor is **per metric, not global**. `fabrication_rate` is the unstable
+one: in three of four models a single task flips between `answered` and
+`needs_clarification` between identical runs, which is 6.25 points. The other
+four metrics were stable or near-stable across all eight runs, and
+`silent_guess_rate` did not move at all in any model.
+
+**A stable rate can still hide task-level churn.** `water`'s
+`collateral_write_rate` is identical across its two replicates, yet two
+different tasks flipped — one gaining a stray write, one losing one, netting
+zero. The rate concealed it. This is why every comparison in this document is
+reported through `scripts/paired_analysis.py`, which counts discordant pairs
+rather than differencing rates: the paired table sees offsetting flips and the
+rate does not.
+
+**How to read every delta below.** A change in `fabrication_rate` of one task
+(6.25 pp) is inside measured noise and is not evidence of anything. A change in
+`silent_guess_rate` of one task is above measured noise but is still one task.
+Deltas are therefore reported with their discordant-pair counts throughout, and
+the two claims in this document that rest on a single flipped task are flagged
+where they appear.
+
+---
+
 ## Baseline
 
 The locked benchmark is `tasks/phase2-curatorkit-generated-96-p2v3.jsonl`: 96
@@ -434,8 +471,14 @@ Compare this with the numbers that the same three adapters produced on the
 Hugging Face path: 93.75% over-refusal and 6.25% completion for all of them,
 and for the untrained base as well. **None of that was real.** On a correct
 serving path the adapters do not collapse, do not over-refuse, and hold
-completion exactly at baseline. The DPO runs are close to inert, moving one
-collateral write; the SFT adapter moves one fabrication and two silent guesses.
+completion exactly at baseline.
+
+Read against the noise floor, almost nothing here is a result. The DPO runs
+move **one** collateral write (3.1 pp at n=32) and balanced DPO moves **one**
+silent guess the wrong way; the SFT adapter moves **one** fabrication — which is
+6.25 pp, exactly the measured run-to-run spread for that metric — and two silent
+guesses. Only the two-task silent-guess change exceeds what identical reruns of
+an unchanged model produce, and that one is measured on training data.
 
 Every number in that table is measured on the data the adapters were trained
 on. It is reported because it is what the runs scored, not because it means
@@ -490,7 +533,7 @@ So the full-set table above and this one together give the complete picture:
 
 | | fabrication | silent guess |
 |---|---|---|
-| **measured on training data** | 62.5% → 56.2% (1 task) | 31.2% → 18.8% (2 tasks) |
+| **measured on training data** | 62.5% → 56.2% (1 task — **inside the 6.2 pp noise floor**) | 31.2% → 18.8% (2 tasks) |
 | **measured on held-out data** | 71.4% → 71.4% (0 tasks) | 40.0% → 40.0% (0 tasks) |
 
 The entire apparent improvement was memorisation of the three specific items it
@@ -884,12 +927,18 @@ earlier claim in this document that cited identical replicates as evidence of
 measurement soundness was citing the wrong thing.
 
 The practical consequence is a benchmark-design constraint, not just a
-historical correction. At 16 tasks per probe, **one flipped task is 6.25
-percentage points** — larger than most deltas discussed in this document,
-including the 12.5-point silent-guess result that survived the contamination
-analysis. A single run is not a measurement. Every comparison here should be
-read as a range, and any delta under about 6 points as indistinguishable from
-noise.
+historical correction, and it is **metric-specific** — see the
+[measurement noise floor](#measurement-noise-floor) for the measured numbers.
+`fabrication_rate` moved 6.2 points between identical runs in three of four
+models, so any fabrication delta of one task is uninterpretable.
+`silent_guess_rate`, by contrast, did not move at all in any of the eight runs,
+so a two-task silent-guess change is above measured noise even though it is
+still only two tasks.
+
+A single run is therefore not a measurement, and the correct reading is a range
+plus a discordant-pair count — not a differenced rate, because `water` shows a
+rate staying identical while two tasks flip in opposite directions underneath
+it.
 
 This was caught because the retrain's analysis was pre-registered with a
 replication requirement (`docs/preregistration-loss-mask.md`), written before
