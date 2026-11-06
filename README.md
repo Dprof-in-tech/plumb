@@ -269,11 +269,13 @@ Both sides use the identical task file, so the paired comparison is valid, but
 the silent-guessing row carries no information here. And this is a prompt
 change, not training, so it does not satisfy a fine-tuning track on its own.
 
-## The three interventions
+## The training interventions
 
-All three used AlignTune on an A10G. All three are negative results. The
-prompt intervention above is separate and is the only significant movement in
-the project.
+Four in total. The first three used AlignTune on an A10G and are described
+here; the fourth, a retrain with the loss mask corrected, is in the
+before-and-after section below because it required the measurement fixes first.
+All four are negative results. The prompt intervention above is separate and is
+the only significant movement in the project.
 
 | intervention | data | recipe | result on the corrected path |
 |---|---|---|---|
@@ -450,7 +452,49 @@ held-out set, this benchmark could not have detected a small real effect — but
 it is not reporting a small effect it cannot resolve, it is reporting zero
 changed decisions.
 
-**This is the project's training result, stated plainly: none of the three
+### The loss-mask retrain
+
+The diagnosis above pointed at one concrete cause: the SFT loss was computed
+over the whole sequence rather than the completion. Measured on the real
+tokenizer, the 48 training examples average 264.5 prompt tokens against 22.4
+completion tokens, so **about 92% of the gradient was being spent predicting
+serialised spreadsheet cells** — arbitrary data the model cannot learn. That
+explains a `train_loss` of 3.045 on 48 gold examples.
+
+So we fixed it and retrained, with the analysis pre-registered first
+(`docs/preregistration-loss-mask.md`, committed before the run existed).
+
+The mechanism fix is confirmed. A gate ran on a real batch from the real
+dataloader before training was allowed to start, and decoded the unmasked span:
+
+| | previous run | masked run |
+|---|---:|---:|
+| unmasked token fraction | 1.000 | **0.065** |
+| `train_loss` after 2 epochs | 3.045 | **1.884** |
+| LoRA config | — | **byte-identical to the previous run** |
+
+The evaluation, however, **failed the pre-registered replication requirement.**
+Three runs of the one model on the one task file at temperature 0 produced three
+different metric vectors, because two tasks out of 48 flip between
+`needs_clarification` and `answered` — and they flip in opposite directions. On
+`curator-4-005` answering is correct (it completes a write task); on
+`curator-4-007` answering is a fabrication. Whichever way those two land sets
+fabrication, over-refusal and completion for the entire run.
+
+Per the pre-registered rule, **the masked adapter's grounding is reported as
+unstable and no effect is claimed in either direction.** Full detail in
+`docs/result-loss-mask.md`.
+
+Two things follow. The null training result is now *better* supported, because
+the most plausible mechanical explanation for it has been eliminated: the loss
+is provably on the completion and the model still does not ground better. And
+one of this project's own methodological claims is weakened — "three identical
+replicates at temperature 0" was cited repeatedly as evidence the measurements
+were sound, but it turns out to be a property of the **base model**, not of the
+harness. The base reproduces identically across five runs and two machines; an
+adapter of the same model on the same harness does not reproduce at all.
+
+**This is the project's training result, stated plainly: none of the four
 interventions produced a measurable grounding improvement that generalises.**
 Two DPO recipes are inert or slightly harmful, and full-task SFT changes no
 decision on unseen data. We are not claiming a training win, and the earlier
@@ -892,10 +936,11 @@ sheets across 96 tasks. That is fine for measuring a model but it makes the set
 awkward to split, and it is the reason the held-out split had to be grouped. A
 future version should generate every task from a distinct sheet.
 
-**There is no positive *training* result.** Three training interventions, all
-negative: two DPO recipes that are inert or slightly harmful, and a full-task
-SFT adapter that changes no decision on any of 48 held-out tasks. The only
-training numbers that looked like a win were measured on the training data.
+**There is no positive *training* result.** Four training interventions, all
+negative: two DPO recipes that are inert or slightly harmful, a full-task SFT
+adapter that changes no decision on any of 48 held-out tasks, and a retrain with
+the loss mask corrected whose evaluation would not replicate. The only training
+numbers that looked like a win were measured on the training data.
 
 The project does have one significant result, and it is a prompt change rather
 than a fine-tune: an explicit decision rule cut fabrication 37.5 points
