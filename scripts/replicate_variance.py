@@ -76,17 +76,32 @@ def main():
               f"{min(rates):>5.1f}-{max(rates):<4.1f}{spread:>8.1f}{mark}")
 
     # Which tasks disagree with themselves across replicates?
+    #
+    # Comparing `status` alone is not enough, and getting this wrong once
+    # already hid an instability: on curator-1-023 two runs both returned
+    # `answered` but wrote to different cells (B2 vs C2), so the status matched
+    # while collateral_write_rate moved. A task is unstable if the status OR
+    # any scored flag differs.
+    FLAGS = ["status"] + [f for f, _ in METRICS]
     unstable = defaultdict(list)
     for i in ids:
-        statuses = {r[i]["status"] for r in reps}
-        if len(statuses) > 1:
-            unstable[i] = [r[i]["status"] for r in reps]
+        sigs = [tuple(r[i].get(f) for f in FLAGS) for r in reps]
+        if len(set(sigs)) > 1:
+            which = [f for f in FLAGS
+                     if len({r[i].get(f) for r in reps}) > 1]
+            unstable[i] = (
+                [r[i]["status"] for r in reps],
+                which,
+                [r[i].get("stray_cells") for r in reps] if "collateral" in which else None,
+            )
 
-    print(f"\nboundary tasks (status differs across replicates): "
+    print(f"\nboundary tasks (status or any scored flag differs): "
           f"{len(unstable)}/{len(ids)}")
-    for i, sts in sorted(unstable.items()):
+    for i, (sts, which, stray) in sorted(unstable.items()):
         probe = reps[0][i]["probe"]
         print(f"  {i:<22} {probe:<16} {' | '.join(sts)}")
+        print(f"      differs on: {', '.join(which)}"
+              + (f"   stray_cells: {stray}" if stray else ""))
 
     if not unstable:
         print("  none -- every task returned the same status in every replicate")

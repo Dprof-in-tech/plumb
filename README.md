@@ -14,16 +14,27 @@ Model under test: `CohereLabs/tiny-aya-global` (3.35B).
 Four results, each measured mechanically with no LLM judge anywhere in the
 scoring, each reproduced, and each with a link to the full working.
 
-**1. A safety intervention can score perfectly on every safety metric and be
-worthless.** Our first DPO run drove `fabrication_rate`, `silent_guess_rate`
-and `collateral_write_rate` all to **0.0%**, from 62.5%, 31.2% and 3.1%. A
-clean sweep of all three headline metrics. It achieved this by emitting
-`needs_clarification` on **93 of 96 tasks** — `over_refusal_rate` 95.31%,
-`completion_rate` 4.69%. Each safety metric counts failures on a subset where
-failure is possible, so a model that never commits is never wrong. We
-reproduced the sweep with two more recipes. If you report safety metrics
-without capability guards, your benchmark is gameable, and the cheapest way to
-game it is to break the model. → [guard metrics](#the-guard-metrics-and-why-they-are-load-bearing)
+**1. Ranking models by safety metrics inverts the ranking by usefulness — on
+models nobody tampered with.** Across the four Tiny Aya variants Cohere Labs
+ships, `tiny-aya-earth` scores **0.0% on fabrication, silent guessing and
+collateral writes simultaneously**. A perfect sweep. It achieves this by
+answering **0 of 16 answerable control tasks**: 100% over-refusal, 0%
+completion, at 100% parse and strict format. `tiny-aya-global`, which looks
+*worst* on all three safety metrics, is the only variant that completes three
+quarters of the benchmark. Order the family by safety alone and you get
+`earth > water > fire > global`; order it by whether it does the job and you get
+exactly the reverse.
+
+`earth` is not broken and not mis-served. Its failure is the mirror image of
+fabrication: it **confabulates absence**, replying that a sheet "only contains
+sales data for January and February" when March is right there and two sibling
+models read it correctly. Every grounding metric we built rewards it for that.
+Our own first DPO run reproduced the same pattern from the other direction —
+0.0% on all three, by emitting `needs_clarification` on 93 of 96 tasks.
+
+If you report safety metrics without capability guards, your benchmark is
+gameable, and the cheapest way to game it is to ship a model that refuses.
+→ [Aya family sweep](#the-aya-family-sweep-safety-rankings-invert-usefulness-rankings) · [guard metrics](#the-guard-metrics-and-why-they-are-load-bearing)
 
 **2. A 3.35B model never detects unannounced column ambiguity. Not rarely —
 never.** Given two columns with the same header, different values, and no cue
@@ -814,9 +825,29 @@ identical SFT replicates. A one-character prompt mutation changed the output, so
 it was not a response cache.
 
 Then the correctly-masked adapter produced **three different metric vectors in
-three runs** of the same model on the same task file at temperature 0. Two tasks
-of 48 flip between `needs_clarification` and `answered`, and they flip in
-opposite directions:
+three runs** of the same model on the same task file at temperature 0 — and the
+Aya sweep showed the same thing in the *untrained vendor models*, so this is not
+an artifact of training. Measured across two replicates each on the locked 96:
+
+| variant | unstable tasks / 96 | worst metric spread |
+|---|---:|---:|
+| `earth` | **0** | 0.0 pp |
+| `global` | 2 | 6.2 pp |
+| `fire` | 2 | 6.2 pp |
+| `water` | **6** | 6.2 pp |
+
+The boundary tasks are **different for each model**, so this is not a property
+of the task set — it is model-specific near-ties in the logits, which is what
+you expect when greedy decoding runs on a GPU whose reduction order varies with
+batching.
+
+Note which model is perfectly stable. `earth` never disagrees with itself
+because it refuses everything, and a model that always abstains has no near-ties
+to flip. **Replicate identity is partly a symptom of abstention**, so it is not
+even a neutral property to cite.
+
+For the adapter, two tasks of 48 flip between `needs_clarification` and
+`answered`, and they flip in opposite directions:
 
 | task | probe | when it answers |
 |---|---|---|
@@ -826,12 +857,30 @@ opposite directions:
 Whichever way those two land sets fabrication, over-refusal and completion for
 the whole run. The other 46 are stable.
 
+One further wrinkle, because the instrument failed here too. Our first pass at
+detecting unstable tasks compared the `status` field only, and reported `global`
+as having one unstable task. It has two: on `curator-1-023` both runs returned
+`answered` but wrote to **different cells** — `B2` in one, `C2` in the other —
+so the status matched while `collateral_write_rate` moved. That is exactly the
+discrepancy that made the sweep's validation row fail against the recorded
+baseline, and a status-level check could not see it.
+`scripts/replicate_variance.py` now flags a task when the status *or any scored
+flag* differs.
+
 So replicate identity is a property of **the model under test**, not of the
 harness. The base model reproduces identically across five runs and two
-machines; an adapter of that model, on that harness, does not reproduce at all.
-Every earlier claim in this document that cited identical replicates as
-evidence of measurement soundness was citing the wrong thing — it was evidence
-that Tiny Aya is unusually deterministic, which is a fact about Tiny Aya.
+machines on the held-out split; the same model from the vendor GGUF on a GPU
+does not reproduce against itself, and neither does an adapter of it. Every
+earlier claim in this document that cited identical replicates as evidence of
+measurement soundness was citing the wrong thing.
+
+The practical consequence is a benchmark-design constraint, not just a
+historical correction. At 16 tasks per probe, **one flipped task is 6.25
+percentage points** — larger than most deltas discussed in this document,
+including the 12.5-point silent-guess result that survived the contamination
+analysis. A single run is not a measurement. Every comparison here should be
+read as a range, and any delta under about 6 points as indistinguishable from
+noise.
 
 This was caught because the retrain's analysis was pre-registered with a
 replication requirement (`docs/preregistration-loss-mask.md`), written before
@@ -892,6 +941,73 @@ model or extra compute:
 
 That last one is a two-line check. It is in `scripts/check_contamination.py`
 now, and it should have been there on day one.
+---
+
+## The Aya family sweep: safety rankings invert usefulness rankings
+
+The strongest single exhibit in this project is not one of our training runs.
+It is four models Cohere Labs already ships.
+
+All five Tiny Aya variants are 3.35B. Four have vendor GGUFs
+(`global`, `earth`, `fire`, `water`); `tiny-aya-base` has none and is excluded
+as a pretrained non-instruction model. Each was run through the identical path —
+same Modelfile, same stop parameter, same runner, same locked 96 tasks — twice,
+on rented hardware. Ranges are across the two replicates.
+
+| variant | fabrication (16) | silent guess (16) | collateral (32) | **over-refusal (64)** | **completion (64)** |
+|---|---:|---:|---:|---:|---:|
+| `earth` | **0.0%** | **0.0%** | **0.0%** | 100.0% | **0.0%** |
+| `water` | 6.2–12.5% | **0.0%** | 3.1% | 60.9–62.5% | 37.5–39.1% |
+| `fire` | 37.5–43.8% | **0.0%** | 9.4% | 10.9% | 57.8–59.4% |
+| `global` | 56.2–62.5% | 31.2% | 0.0% | 10.9% | 75.0–76.6% |
+
+Read the first three columns alone and the ranking is
+`earth > water > fire > global`. Read the last two and it reverses exactly.
+`earth`, the model that looks safest by every headline metric, answers **nothing
+at all**: 0 of 16 answerable control tasks, 100% over-refusal, 0% completion.
+`global`, which looks worst, is the only one that completes three quarters of
+the benchmark.
+
+This is the guard-metric argument demonstrated on artifacts nobody tampered
+with. A team reporting only fabrication, silent guessing and collateral writes
+would select `earth` and ship a model that refuses every question.
+
+**`earth` is not broken, and it is not a template artifact.** It returns
+well-formed single JSON objects — 100% parse, 100% strict format — in fluent
+English, correctly quoting the sheet's own column names. Its failure mode is
+the mirror image of fabrication: it **confabulates absence**. Asked for
+March sales from a sheet containing March sales, it replies that "the sheet only
+contains sales data for January and February." `fire` and `water` read the same
+sheet and return 13500. So `earth` invents missing data as confidently as other
+models invent present data, and every grounding metric we built rewards it for
+doing so.
+
+### The design decision this falsifies
+
+An earlier version of this document justified using `global` by asserting that
+Earth, Fire and Water are "specialised by language family, which is irrelevant
+to English spreadsheet tasks." That was reasoning, not measurement, and it was
+wrong.
+
+`fire` scores **0.0% on silent guessing against `global`'s 31.2%** — it asked
+for clarification on all 16 ambiguous tasks — while over-refusing no more than
+`global` does (10.9% for both) and still answering 15 of 16 answerable controls.
+It is not buying the improvement by abstaining, which is exactly the check that
+`earth` and `water` fail. On the probe this project treats as its original
+contribution, a variant excluded by assumption outperforms the variant chosen,
+by five tasks, which is the only gap in the table comfortably larger than
+run-to-run noise.
+
+Choosing a model on reasoning about its training data, rather than on running
+your benchmark against it, is the same class of error as the rest of this
+document. It cost nothing to check and we checked it last.
+
+### Vendor artifacts get the EOS metadata right
+
+All four vendor GGUFs declare `tokenizer.ggml.eos_token_id = 3`. Every artifact
+*we* converted declared 6. Failure 5 was entirely self-inflicted; nothing
+Cohere ships has that defect.
+
 ---
 
 ## The three-tier ambiguity finding
@@ -1277,11 +1393,15 @@ ordering is load-bearing: on an ambiguous task, asking is the correct move.
 ## Model choice
 
 The hackathon fixes the model under test to the Cohere Labs set. All five Tiny
-Aya variants are 3.35B. `tiny-aya-global` is the right one here:
-`tiny-aya-base` is a pretrained foundation model rather than instruction-tuned,
-so it would fail the output contract for reasons unrelated to grounding, and
-Earth/Fire/Water are specialised by language family, which is irrelevant to
-English spreadsheet tasks.
+Aya variants are 3.35B. `tiny-aya-global` is the model under test here, and the
+original justification for that choice was only half right. `tiny-aya-base` is
+genuinely unsuitable — a pretrained foundation model, not instruction-tuned, so
+it would fail the output contract for reasons unrelated to grounding, and it
+ships no GGUF. But the claim that Earth/Fire/Water are "specialised by language
+family, which is irrelevant to English spreadsheet tasks" was an assumption, and
+the sweep above falsifies it: `fire` beats `global` on silent guessing by five
+tasks without over-refusing more, and `earth` fails in a way that would fool any
+safety-metrics-only evaluation. All four are now measured and reported.
 
 Teacher and judge models may be non-Cohere; only the model under test is
 constrained. `qwen3:8b` was used for task review and as the comparison model in
