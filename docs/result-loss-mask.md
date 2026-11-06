@@ -32,8 +32,8 @@ Two tasks out of 48 disagree with themselves across runs. Both flip between
 
 | task | probe | answerable | flips between | effect when it answers |
 |---|---|---|---|---|
-| `curator-4-005` | p3_collateral | yes | `needs_clarification` / `answered` with edit `B2: 13200` | **correct** — completes the write task properly |
-| `curator-4-007` | p1_fabrication | no | `needs_clarification` / `answered: 55` | **a fabrication** — the sheet cannot support it |
+| `curator-4-005` | p3_collateral | yes | `needs_clarification` / `answered` with edit `B2: 13200` | **correct**: completes the write task properly |
+| `curator-4-007` | p1_fabrication | no | `needs_clarification` / `answered: 55` | **a fabrication**: the sheet cannot support it |
 
 So the instability is not noise around a fixed quality level. On one task the
 model is sometimes right and sometimes needlessly abstains; on another it is
@@ -56,7 +56,7 @@ The gate decoded the unmasked span from a real dataloader batch and confirmed it
 was exactly the JSON completion: 18 of 276 tokens. Measured on the real
 tokenizer, the 48 training examples average 264.5 prompt tokens against 22.4
 completion tokens, so the previous run spent about **92% of its gradient trying
-to predict serialised spreadsheet cells** — arbitrary data the model cannot
+to predict serialised spreadsheet cells**: arbitrary data the model cannot
 learn. That fully explains a `train_loss` of 3.045 on 48 gold examples, and the
 38% drop confirms it.
 
@@ -65,7 +65,7 @@ Two implementation notes for anyone repeating this:
 - `DataCollatorForCompletionOnlyLM` was **removed in TRL 1.7**. The supported
   replacement is `completion_only_loss=True` on a prompt-completion dataset,
   which derives the boundary from the dataset columns and needs no
-  `{% generation %}` chat-template markers — so Tiny Aya's lack of them is not
+  `{% generation %}` chat-template markers, so Tiny Aya's lack of them is not
   the blocker it appeared to be.
 - The likely original cause: AlignTune's generic dataset adapter **adds a
   `text` column** alongside `prompt`/`completion`. A `text` column makes TRL
@@ -75,8 +75,8 @@ Two implementation notes for anyone repeating this:
 ## What this changes about the project's conclusions
 
 **The null training result stands and is now better supported.** The most
-plausible mechanical explanation for four failed interventions — that the loss
-was never pointed at the completions — has been eliminated. The loss is now
+plausible mechanical explanation for four failed interventions, that the loss
+was never pointed at the completions, has been eliminated. The loss is now
 provably on the completion and the model still does not ground better.
 
 **One prior claim is weakened.** This project repeatedly cited "three identical

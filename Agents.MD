@@ -1,4 +1,4 @@
-# PLUMB — working context
+# PLUMB, working context
 
 Read this before changing anything. It holds the decisions that are already
 made and the reasons behind them, so they do not get quietly undone.
@@ -19,7 +19,7 @@ generalises.** The README is rewritten and is the public write-up.
 | locked benchmark | `tasks/phase2-curatorkit-generated-96-p2v3.jsonl`, unchanged |
 | baseline (vendor GGUF) | fab 62.5%, sg 31.2%, coll 3.1%, or 10.9%, comp 75.0%, parse/strict 100% |
 | converted base, EOS fixed | **identical to vendor on all seven metrics**, 3 replicates |
-| contaminated SFT (full 96) | fab 56.2%, sg 18.8% — measured on its own training data |
+| contaminated SFT (full 96) | fab 56.2%, sg 18.8%, measured on its own training data |
 | held-out SFT (48 train / 48 test) | **zero discordant pairs on every metric**, 2 replicates |
 | DPO, both recipes | inert; balanced DPO is worse on silent guessing (37.5%) |
 
@@ -51,7 +51,7 @@ generalises.** The README is rewritten and is the public write-up.
    test tasks sharing a sheet with training. `scripts/split_tasks.py` groups by
    shared instruction *or* sheet and assigns whole groups. Retrained the same
    LoRA recipe on 48, evaluated on 48 unseen: **no decision changed on any
-   task.** Adapter does load (5/48 replies reworded) — it learned phrasing.
+   task.** Adapter does load (5/48 replies reworded); it learned phrasing.
 5. **Qwen3 numbers in the ambiguity table were wrong.** "Answered all 16" and
    "clarified 3/16" had no supporting artifact; the first was contradicted by
    `runs/teacher-ambiguous.jsonl`. Root cause was the runner's 400-token
@@ -64,8 +64,7 @@ generalises.** The README is rewritten and is the public write-up.
    11/16.
 7. **ROI measured** (`runs/roi-measure-base.json`): 270.4 prompt / 44.5
    completion tokens mean, 1.38 s/task. Self-hosting does not pay below ~1.5M
-   tasks/month vs Haiku 4.5. Throughput was measured on an M3 Pro, not an A10G
-   — stated as such in the README.
+   tasks/month vs Haiku 4.5. Throughput was measured on an M3 Pro, not an A10G, stated as such in the README.
 
 ### Remaining
 
@@ -100,8 +99,8 @@ mechanical had failed. P2 is that bug generalised.
 
 ## Dates
 
-- **21 Nov 2026** — submission deadline.
-- **19 Nov 2026** — hard code freeze. The last two days are writing, and this
+- **21 Nov 2026**: submission deadline.
+- **19 Nov 2026**: hard code freeze. The last two days are writing, and this
   is not negotiable. Write-up clarity is scored out of 10 on its own.
 
 ---
@@ -168,8 +167,19 @@ Do not undo these without a reason better than the one written here.
    and `no_edit_rate` exist because the three headline metrics are trivially
    gamed: a model that declines everything, or claims success and edits
    nothing, scores perfectly. Always report them alongside.
-6. **Write-task completion requires a real cell change.** Saying "answered" and
-   touching nothing is not completion.
+6. **`completion_rate` does not require a cell change, `no_edit_rate` is the
+   guard for that.** This decision was written down as "write-task completion
+   requires a real cell change" and the scorer never implemented it:
+   `judge()` sets `completed = status == "answered" and answer == expected`,
+   with no reference to `resp.edits`. So a reply that says "answered" with the
+   right value and edits nothing scores as completed. Found while building the
+   Space, by driving the scorer through a case the test suite never covered.
+   The behaviour is not changed, because every recorded run was scored this way
+   and the invariant below forbids re-scoring one side of a comparison. Instead:
+   **`no_edit_rate` from `scripts/inspect_run.py` must be read alongside
+   `completion_rate` on any write-task result.** At baseline it is 21.9% of 32
+   write tasks, which is how the "says done, touches nothing" case is actually
+   caught.
 7. **Blank cells are omitted from the serialisation**, so the model is not
    invited to read absence as zero.
 8. **A no-op write is not collateral.** Setting a cell to the value it already
@@ -269,7 +279,7 @@ CuratorKIT-generated set, 16 per probe/control category, CuratorKIT hygiene
 96/96, `qwen3:8b` teacher review 96/96. P2 was redesigned twice; the adopted set
 uses duplicate headers with an explicit statement that the qualifying column is
 unspecified (`p2v3`), and `p2v4` is the unannounced-ambiguity comparison set.
-Keep all three P2 variants — the three-tier finding needs them.
+Keep all three P2 variants, the three-tier finding needs them.
 
 **Baseline.** Locked, vendor GGUF through Ollama, three identical replicates in
 `runs/baseline-p2v3-1/2/3`. Superseded two earlier baselines: one whose parser
