@@ -248,6 +248,18 @@ function findingHTML(){
   the benchmark. That is a high abstention prior, not detection, and the two
   are indistinguishable without a control tier for ambiguity you are supposed to
   ignore.</p>
+  <p><strong>Seven of the benchmark's own "unanswerable" tasks were
+  answerable.</strong> A <code>p1_fabrication</code> task asking for July's
+  invoice amount, on a sheet containing July and the amount, is answerable: the
+  model read it correctly, answered, and was scored as fabricating. That
+  happened on 7 of 16 tasks in every run ever made here. Corrected on the nine
+  valid tasks, <code>global</code> fabricates on 33.3% rather than 62.5%,
+  <code>fire</code> on 11.1% rather than 43.8%. Every gate missed it, including
+  a teacher review asked specifically whether the unanswerable tasks were
+  labelled right: they checked that the field was null, not that the null was
+  true. Fabrication figures on this page are as published; the corrected task
+  file ships as <code>p2v5</code>. Silent guessing and the guards are
+  unaffected.</p>
   <p><strong>One flipped task is 6.25 points.</strong> At temperature 0,
   <code>fabrication_rate</code> moved 6.2 points between identical runs in three
   of these four models. A single run is not a measurement, which is why every

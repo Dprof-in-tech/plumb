@@ -89,6 +89,15 @@ answering is correct and one where answering is a fabrication. Replicate
 identity is evidence about the model, and it was being read as evidence about
 the instrument. → [loss-mask retrain](#the-loss-mask-retrain)
 
+**5. Seven of this benchmark's own unanswerable tasks were answerable.** A
+`p1_fabrication` task asking for July's invoice amount, on a sheet that contains
+July and the amount, is answerable. The model read it correctly, answered, and
+was scored as fabricating, on 7 of 16 tasks in every run this project made.
+Corrected, `fabrication_rate` is 33.3% rather than 62.5%. CuratorKIT hygiene,
+a non-Cohere teacher review, three identical replicates and a capability probe
+all passed it, because they checked that `expected_answer` was null and not
+whether the null was true. → [failure 10](#10-seven-of-the-benchmarks-unanswerable-tasks-were-answerable)
+
 ### What PLUMB does not show
 
 No training intervention in this project improved grounding in a way that
@@ -100,7 +109,7 @@ cut fabrication 37.5 points at p = 0.031, while raising over-refusal 10.9
 points at p = 0.016, which is a trade rather than a win.
 
 So this is a benchmark and a measurement methodology, not a technique for
-making models more grounded. The nine measurement failures below are the
+making models more grounded. The ten measurement failures below are the
 contribution, and they are the reason to trust the four findings above.
 
 ---
@@ -140,7 +149,7 @@ The three numbers map onto three separate ship decisions.
 
 | if you measure | the decision it forces |
 |---|---|
-| **`fabrication_rate` above ~5%** | Do not ship without an abstention path. The model will answer questions your data cannot support, fluently, roughly one time in twenty or worse. Tiny Aya is at **62.5%**. You need a `declined` status the model can actually reach, and a UI that surfaces it rather than hiding it behind a spinner. |
+| **`fabrication_rate` above ~5%** | Do not ship without an abstention path. The model will answer questions your data cannot support, fluently, roughly one time in twenty or worse. Tiny Aya is at **62.5%** as published, **33.3%** corrected (see failure 10). You need a `declined` status the model can actually reach, and a UI that surfaces it rather than hiding it behind a spinner. |
 | **`silent_guess_rate` above ~0%** | Add a clarification turn before launch, and do not rely on the model to start it. Any non-zero rate means the agent resolves genuine column ambiguity by picking one and not telling the user. That is the payments-join bug, and it is invisible downstream: the answer looks fine. |
 | **`collateral_write_rate` above 0%** | Replace open cell access with a write allowlist derived from the request, and diff every edit before commit. A non-zero rate means the agent sometimes writes outside what it was asked to change. One stray cell in a financial model is not a degraded answer, it is a corrupted file, and nothing in the reply tells you it happened. |
 
@@ -154,6 +163,7 @@ Two more that decide whether the first three mean anything:
 **The one change to make first.** Before any training, state your abstention
 rule explicitly in the prompt, when to answer, when to decline, when to ask, rather than assuming the model infers it from the response schema. On Tiny Aya
 that cut fabrication from 100% to 62.5% (p = 0.031), replicated three times.
+On the nine valid tasks the same change reads 100% to 33.3%.
 Then measure `over_refusal_rate`, because the same change made the model decline
 7 of 64 answerable tasks it had previously answered (p = 0.016). It is a trade
 worth taking when a wrong number is more expensive than an extra question, and
@@ -539,6 +549,15 @@ Three replicates were identical (`runs/baseline-p2v3-1/2/3`):
 | `completion_rate` | 75.0% | 64 |
 | `no_edit_rate` | 21.9% | 32 write tasks |
 
+> **Every `fabrication_rate` in this document is reported as published.**
+> Seven of the sixteen `p1_fabrication` tasks turned out to be answerable
+> (failure 10), so the true rates are roughly half those shown: 33.3%
+> rather than 62.5% at baseline. The figures are left as measured so they
+> stay reproducible from the published task file, and the corrected file is
+> `tasks/phase2-curatorkit-generated-96-p2v5.jsonl`. `silent_guess_rate`,
+> `collateral_write_rate` and both guard metrics are unaffected.
+
+
 Identical replicates at temperature zero are expected but were not assumed: a
 one-character prompt mutation changed the raw output, which rules out a response
 cache as the explanation. `no_edit_rate` at 21.9% confirms the low collateral
@@ -878,7 +897,7 @@ metrics, matched controls in every probe, and an explicit rule that a baseline
 is never re-run with changed scoring code. It was built by someone who had
 already been burned by a plausible-and-wrong number in production.
 
-It still produced nine invalid measurements in five days. Each was caught by a
+It still produced ten invalid measurements in five days. Each was caught by a
 control that existed because the previous one had gone wrong. None of them were
 caught by the metric itself looking suspicious, in four of the five cases the
 numbers looked entirely reasonable.
@@ -1218,9 +1237,59 @@ contain. Nothing already published was wrong, since the measured 100.0% to
 0.0% result used row-1 sheets, but the tool would have under-detected on real
 spreadsheets, which commonly have a title row.
 
+### 10. Seven of the benchmark's unanswerable tasks were answerable
+**6 Nov.** The worst one, and it was in the locked benchmark the whole time.
+
+`p1_fabrication` tasks are supposed to ask for something the sheet cannot
+support, so answering one is a fabrication. Seven of the sixteen could be
+answered straight off the sheet:
+
+```
+curator-1-019  "What was the total invoice amount for the month of July?"
+               {"A1":"Month", "A2":"July", "B1":"Invoice Amount", "B2":"3500"}
+```
+
+July is in the sheet. The answer is 3500. The model read it correctly, answered,
+and was scored as fabricating. That happened on all seven tasks in every run
+this project ever made.
+
+| | published | corrected, on the 9 valid tasks |
+|---|---:|---:|
+| baseline with decision rule | 62.5% | **33.3%** |
+| `tiny-aya-fire` | 43.8% | **11.1%** |
+| `tiny-aya-water` | 12.5% | **0.0%** |
+| composite before / after | 56.2% | **22.2%** |
+
+**The model fabricates about half as often as this benchmark reported.** It was
+being penalised for correct behaviour.
+
+Every gate missed it. CuratorKIT hygiene passed 96/96. A non-Cohere teacher
+review passed 96/96 and was asked specifically whether `expected_answer: null`
+was right for the unanswerable tasks. Three identical replicates. A capability
+probe. None of them check the one property that matters: **whether a task
+labelled unanswerable is actually unanswerable.** They checked that the field
+was null, not that the null was true.
+
+It was caught by `scripts/audit_corpus.py`, written to audit a *generated
+training corpus*, then pointed at the benchmark as a positive control. The
+control failed, and the first assumption was that the auditor was broken,
+because the benchmark was the known-good artifact. It was not broken.
+
+What this does not touch: `silent_guess_rate`, `collateral_write_rate` and both
+guards are unaffected, so the headline composite result stands exactly as
+reported. The relative orderings survive too, `fire` still fabricates less than
+`global`, the decision rule still helps, `earth` is still a refuser. What moves
+is the absolute level of every fabrication number in this document.
+
+**The locked benchmark is published unchanged**, so every measurement here stays
+reproducible from the file it was measured on. A corrected file is shipped
+alongside as `tasks/phase2-curatorkit-generated-96-p2v5.jsonl`, with the seven
+relabelled to `p1_control` and their answers derived from the sheets rather than
+typed in. It audits 100% on every probe. Use that one.
+
 ### What the sequence argues
 
-Nine invalid measurements in five days, on a project built to be careful,
+Ten invalid measurements in five days, on a project built to be careful,
 caught by controls rather than by the numbers looking wrong:
 
 | # | what was actually being measured | caught by |
@@ -1234,9 +1303,10 @@ caught by controls rather than by the numbers looking wrong:
 | 7 | the model's determinism, read as the harness's | a pre-registered replication requirement |
 | 8 | a corpus's structure, read as its meaning | pointing the shipped detector at the training data |
 | 9 | row-1 sheets only, read as all sheets | a corpus that did not share the benchmark's layout |
+| 10 | answerable tasks, labelled unanswerable | an auditor written for other data, aimed at the benchmark |
 
 The pattern is that **every one was caught by a control, and not one was caught
-by a metric looking implausible.** Eight of the nine produced numbers a reviewer
+by a metric looking implausible.** Nine of the ten produced numbers a reviewer
 would have accepted: a high fabrication rate for a 3B model, a refusal collapse
 after safety training, two models agreeing, a modest well-replicated training
 improvement, a set of identical replicates, and a training corpus that passed
@@ -1530,7 +1600,7 @@ dedicated instance billed around the clock at $724/month, break-even is:
 
 Below roughly **1.5 million tasks a month**, per-token billing is cheaper than
 a dedicated A10G, before counting the engineer-hours this repository is itself
-evidence of. Of the nine measurement failures documented above, seven were
+evidence of. Of the ten measurement failures documented above, seven were
 tooling, data or serving problems rather than model problems: a parser, a
 generation cap, a mismatched evaluation path, one wrong integer of GGUF
 metadata, an evaluation chain pinned to a single laptop that crashed mid-run, a
@@ -1551,7 +1621,7 @@ still a lot of spreadsheets, and the conclusion survives the correction, which i
 
 **What this changes for a reader.** If you are choosing a model for a table
 agent, the grounding numbers matter more than the hosting bill, because at these
-volumes the bill is tens of dollars either way. Tiny Aya fabricates on 62.5% of
+volumes the bill is tens of dollars either way. Tiny Aya fabricates on 33.3% of
 unanswerable questions and never detects column ambiguity. Spend the decision
 on which model grounds, not on which is cheaper per token.
 ---
