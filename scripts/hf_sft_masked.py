@@ -171,9 +171,15 @@ def main():
         args=cfg,
         train_dataset=ds,
         processing_class=tokenizer,
+        # Copied verbatim from the previous run's adapter_config.json so that
+        # the loss mask is the only variable that changes between the two runs.
         peft_config=LoraConfig(
-            r=8, lora_alpha=16, lora_dropout=0.05,
-            task_type="CAUSAL_LM", bias="none",
+            r=8,
+            lora_alpha=16,
+            lora_dropout=0.05,
+            task_type="CAUSAL_LM",
+            bias="none",
+            target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
         ),
     )
 
