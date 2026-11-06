@@ -1,0 +1,13 @@
+{
+  "run": "runs/sweep-earth-1.jsonl",
+  "mode": "keyword",
+  "scored_by_both": 96,
+  "not_testable": 0,
+  "agree": 1,
+  "disagree": 95,
+  "agreement_rate": 1.0,
+  "matrix": {
+    "plumb_abstained__auditkit_answered": 95,
+    "plumb_abstained__auditkit_abstained": 1
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "run": "runs/sweep-global-1.jsonl",
+  "mode": "keyword",
+  "scored_by_both": 96,
+  "not_testable": 0,
+  "agree": 72,
+  "disagree": 24,
+  "agreement_rate": 75.0,
+  "matrix": {
+    "plumb_answered__auditkit_answered": 72,
+    "plumb_abstained__auditkit_answered": 24
+  }
+}

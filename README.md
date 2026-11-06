@@ -5,7 +5,8 @@ in front of them supports.**
 
 Built for the Lexsi AI Safety and Alignment Hackathon, Track 1 (grounded
 answers and fewer hallucinations). Track 1 tooling used: **CuratorKIT** (task
-generation and hygiene review) and **AlignTune** (DPO and SFT). Model under
+generation and hygiene review), **AlignTune** (DPO and SFT) and **AuditKIT**
+(independent cross-check of the abstention measurement). Model under
 test: `CohereLabs/tiny-aya-global` (3.35B), with all four GGUF variants of the
 Tiny Aya family measured.
 
@@ -1076,6 +1077,72 @@ document. It cost nothing to check and we checked it last.
 All four vendor GGUFs declare `tokenizer.ggml.eos_token_id = 3`. Every artifact
 *we* converted declared 6. Failure 5 was entirely self-inflicted; nothing
 Cohere ships has that defect.
+
+---
+
+## An independent check: AuditKIT, and why text-based refusal detection fails here
+
+PLUMB decides whether a model abstained by reading the `status` field of the
+JSON it returned. That is a design decision, not an obvious truth, and nothing
+outside this repository had ever checked it.
+
+[AuditKIT](https://pypi.org/project/auditkit/) asks the same question through
+its `Abstention` metric, "did the system abstain on unanswerable cases and
+answer the answerable ones", and answers it by a completely different
+mechanism: a keyword detector over the reply text, reading the first sentence
+for refusal markers and openers. Two independent implementations, one question.
+`scripts/auditkit_crosscheck.py` runs both over the same recorded replies.
+
+### Wired to the status field, AuditKIT agrees with PLUMB exactly
+
+AuditKIT prefers an explicit abstention signal and falls back to the keyword
+detector only when none is supplied. Supplying PLUMB's status field as that
+signal:
+
+| variant | agreement with PLUMB |
+|---|---:|
+| `global` | 96/96 (100%) |
+| `earth` | 96/96 (100%) |
+| `fire` | 96/96 (100%) |
+| `water` | 96/96 (100%) |
+
+That is external corroboration from code this project did not write, which is
+the kind of control it has learned to trust most.
+
+### Relying on the text fallback, it finds almost nothing
+
+Run the same metric without wiring that signal, which is what you get by
+default when your harness has no explicit abstention flag:
+
+| variant | abstentions PLUMB recorded | keyword detector found | recall | overall agreement |
+|---|---:|---:|---:|---:|
+| `global` | 24 | 0 | **0.0%** | 75.0% |
+| `fire` | 32 | 0 | **0.0%** | 66.7% |
+| `water` | 69 | 4 | **5.8%** | 32.3% |
+| `earth` | 96 | 1 | **1.0%** | 1.0% |
+
+Near-zero recall on every model. The reason is structural rather than a flaw in
+the detector: it reads the first sentence, and the first sentence of every reply
+here is `{ "status": "needs_clarification", ...`. A refusal expressed as a field
+value contains none of the phrases a text detector looks for. AuditKIT's own
+source comments that this path is a naive fallback meant to be replaced, and
+these numbers are what relying on it costs.
+
+**The bias is worst exactly where it matters most.** Overall agreement tracks
+how much a model answers, not how well the detector works, so the more a model
+abstains the worse the measurement gets. `earth` abstains on 96 of 96 tasks and
+scores 1% agreement. A team using a text-based detector to choose between these
+four would conclude that `earth` abstains *least* of all of them. It abstains
+most. It abstains always.
+
+### What to take from it
+
+If you are evaluating an agent that replies in structured output, which is most
+agents now, **do not measure refusal by reading its prose.** Every abstention
+your agent expresses as a field value is invisible to a text detector, and the
+error is not random: it grows with the thing you are trying to measure. Wire the
+structured signal through. PLUMB scores the `status` field for exactly this
+reason, and the agreement table above is the evidence that doing so is sound.
 
 ---
 

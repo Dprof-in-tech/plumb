@@ -1,0 +1,13 @@
+{
+  "run": "runs/sweep-fire-1.jsonl",
+  "mode": "keyword",
+  "scored_by_both": 96,
+  "not_testable": 0,
+  "agree": 64,
+  "disagree": 32,
+  "agreement_rate": 66.7,
+  "matrix": {
+    "plumb_abstained__auditkit_answered": 32,
+    "plumb_answered__auditkit_answered": 64
+  }
+}
