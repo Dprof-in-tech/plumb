@@ -1,0 +1,43 @@
+{
+ "measured": {
+  "prompt_tokens_mean": 270.4,
+  "completion_tokens_mean": 44.5,
+  "decode_tokens_per_s": 32.37,
+  "total_tokens_per_s": 228.93,
+  "mean_latency_s": 1.376,
+  "tasks": 96,
+  "hardware": "Apple M3 Pro (18 GB), Ollama Metal, single stream",
+  "model": "tiny-aya-global Q4_K_M"
+ },
+ "gpu_options": [
+  {
+   "name": "AWS g5.xlarge (1x A10G)",
+   "hourly": 1.006
+  },
+  {
+   "name": "AWS g4dn.xlarge (1x T4)",
+   "hourly": 0.526
+  },
+  {
+   "name": "HF Jobs a10g-small",
+   "hourly": 1.0
+  },
+  {
+   "name": "HF Jobs t4-small",
+   "hourly": 0.4
+  }
+ ],
+ "hosted": [
+  {
+   "name": "Claude Haiku 4.5",
+   "in_per_mtok": 1.0,
+   "out_per_mtok": 5.0
+  },
+  {
+   "name": "Claude Sonnet 5",
+   "in_per_mtok": 2.0,
+   "out_per_mtok": 10.0
+  }
+ ],
+ "note": "Hosted rates are Anthropic list prices and GPU rates are on-demand list, both checked Nov 2026. Throughput was measured single-stream on a laptop, so the self-hosting column is pessimistic: real serving batches."
+}
