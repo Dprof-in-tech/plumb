@@ -36,16 +36,25 @@ If you report safety metrics without capability guards, your benchmark is
 gameable, and the cheapest way to game it is to ship a model that refuses.
 → [Aya family sweep](#the-aya-family-sweep-safety-rankings-invert-usefulness-rankings) · [guard metrics](#the-guard-metrics-and-why-they-are-load-bearing)
 
-**2. A 3.35B model never detects unannounced column ambiguity. Not rarely —
-never.** Given two columns with the same header, different values, and no cue
-that the ambiguity exists, Tiny Aya asked for clarification **0 times out of
-16**. Qwen3 8B asked **16 out of 16**. Told explicitly that the qualifying
-column was unspecified, Tiny Aya went to 11 of 16. So the ability to abstain
-was always there; the ability to *notice* was not. The usual mitigation —
-"instruct the model to ask when unsure" — assumes it knows when it is unsure.
-At this scale it does not, and no prompt fixes that, because a prompt cannot
-describe a collision the model has not seen. Detect duplicate headers in your
-harness instead. → [three-tier ambiguity finding](#the-three-tier-ambiguity-finding)
+**2. No 3.35B model in this family detects unannounced column ambiguity.**
+Given two columns with the same header, different values, and no cue that the
+collision exists, `tiny-aya-global` asked for clarification **0 times out of
+16** and `tiny-aya-fire` **1 out of 16**. Qwen3 8B, on the identical tasks,
+asked **16 out of 16**. Told explicitly that the qualifying column was
+unspecified, `global` goes to 11 of 16 and `fire` to **16 of 16** — so the
+ability to abstain was always there; the ability to *notice* was not.
+
+The usual mitigation, "instruct the model to ask when unsure," assumes it knows
+when it is unsure. At this scale it does not, and no prompt fixes that, because
+a prompt cannot describe a collision the model has not seen. Detect duplicate
+headers in your harness, then announce them.
+
+A trap worth knowing: `tiny-aya-water` asks 7 of 16 unannounced and looks like
+the family's best detector. It also asks 16 of 16 on tasks where a defensible
+default exists and answering is correct, while over-refusing 61% of the
+benchmark. It has a high abstention prior, not detection — and without a
+control tier for "ambiguity you should ignore," the two are
+indistinguishable. → [three-tier ambiguity finding](#the-three-tier-ambiguity-finding-across-the-family)
 
 **3. Our one apparent training win was measured on its own training data.** A
 full-task SFT adapter improved fabrication 62.5% → 56.2% and silent guessing
@@ -1010,69 +1019,79 @@ Cohere ships has that defect.
 
 ---
 
-## The three-tier ambiguity finding
+## The three-tier ambiguity finding, across the family
 
-The broken P2 probe turned into the most useful result here. Running three
-ambiguity designs against two models of different size separates three things
-that the word "ambiguity" normally hides. All six cells below are measured on
-16 tasks each with 100% parse, at a 2500-token cap so no reply is truncated
-(`runs/tier-*.jsonl`).
+This is the project's original contribution, and the sweep turns it from a
+two-model observation into a family-wide result. Three ambiguity designs, four
+models, 16 tasks per cell, two replicates, 100% parse throughout, 2500-token cap
+so nothing truncates.
 
-| tier | the sheet | correct move | Qwen3 8B asks | Tiny Aya 3.35B asks |
-|---|---|---|---:|---:|
-| **Conventional** — a defensible default exists | order-date vs ship-date | answer | 10/16 | **0/16** |
-| **Irreconcilable, unannounced** — no default, nothing flags it | two identical headers, different values | ask | **16/16** | **0/16** |
-| **Irreconcilable, announced** — same, prompt states the column is unspecified | as above, plus an explicit statement | ask | 15/16 | **11/16** |
+The three tiers separate things the word "ambiguity" normally hides:
 
-Three things fall out of this, and the first two are the opposite of what we
-had previously written down.
+- **Conventional** — a defensible default exists (order-date vs ship-date).
+  **Answering is correct**; asking is over-caution.
+- **Irreconcilable, unannounced** — two columns, same header, different values,
+  nothing flags the collision. **Asking is the only correct move.**
+- **Irreconcilable, announced** — same sheet, plus an explicit statement that the
+  qualifying column is unspecified. **Asking is correct, and the cue is given.**
 
-**Ambiguity detection is a capability, and it is present at 8B.** Qwen3 catches
-irreconcilable ambiguity 16 times out of 16 without being told it is there. It
-does not need the cue. Our earlier write-up claimed Qwen3 managed 3/16 on this
-tier; that claim had no run artifact behind it anywhere in the repository, and
-the measurement says 16/16.
+Clarification requests out of 16:
 
-**At 3.35B the capability is absent, not weak.** Tiny Aya asks zero times out
-of sixteen on both irreconcilable tiers. Not rarely — never. It is not making a
-judgement call about whether the ambiguity is worth raising; it does not notice
-that two columns share a header.
+| model | conventional (should ≈0) | unannounced (should be 16) | announced (should be 16) |
+|---|---:|---:|---:|
+| `global` | 0 | **0** | 11 |
+| `fire` | 3–4 | **1** | **16** |
+| `water` | 16 | 7 | 16 |
+| `earth` | 16 | 16 | 16 |
+| *Qwen3 8B (reference)* | 10 | **16** | 15 |
 
-**Announcing the ambiguity recovers most of it for the small model.** Told
-explicitly that the qualifying column is unspecified, Tiny Aya goes from 0/16
-to 11/16. The ability to emit `needs_clarification` was always there — the
-capability probe in failure 2 had already proved that — and what was missing was
-detection, not expression.
+### Unannounced ambiguity is undetected across the whole 3.35B family
 
-The conventional tier is the control that makes the finding legible, and it
-behaves differently from both models' handling of the other two. Qwen3 asks on
-10 of 16 cases where a defensible domain default exists, which is arguably
-over-asking: a user who writes "sales in March" against a sheet with order-date
-and ship-date usually means the obvious one. So the two models fail in opposite
-directions. The small one never asks when it should; the large one sometimes
-asks when it need not.
+`global` 0 of 16. `fire` 1 of 16. That is the finding, and it now rests on two
+models rather than one, with an 8B reference scoring 16 of 16 on the identical
+tasks. **At this scale the models do not notice that two columns share a
+header.** The capability to abstain is present — every variant can emit
+`needs_clarification`, and does so 16 out of 16 when told — so what is missing
+is detection, not expression.
 
-### What to do about it
+This is why the mitigation belongs in your harness. Duplicate and
+near-duplicate headers are a schema property. A check that runs before the
+model is called costs nothing and catches the exact case all four variants were
+given here. Then pass what you detected into the prompt: `global` goes from 0 to
+11, `fire` from 1 to 16.
 
-For anyone shipping a table agent, the practical reading is:
+### `water` is why the conventional control exists
 
-- **Do not rely on the model to detect column ambiguity** unless you have
-  measured that it can, at the size you are actually deploying. "Instruct the
-  model to ask when unsure" assumes it knows when it is unsure. At 3.35B it does
-  not, and no prompt fixes that, because the prompt cannot describe a collision
-  the model has not spotted.
-- **Detect it in the harness instead.** Duplicate and near-duplicate headers are
-  a schema property. A check that runs before the model is called costs nothing,
-  catches the exact case both models were given here, and is the mitigation we
-  would ship.
-- **Then announce what you detected.** Passing "two columns are named Revenue
-  and the request does not say which" into the prompt takes a 3.35B model from
-  0/16 to 11/16. The small model can act on ambiguity it is handed; it just
-  cannot find it.
-- **If you must rely on the model, pay for the bigger one and give it room to
-  think.** Both of those matter: Qwen3's detection is genuinely good, and we
-  measured it as 6/16 instead of 10/16 on the conventional tier purely by
-  capping its generation at 400 tokens.
+Read only the unannounced column and `water` looks like the best detector in the
+family: 7 of 16 against `global`'s 0. It is not detecting anything. It asks 16
+of 16 on the **conventional** tier too — where a defensible default exists and
+answering is the correct behaviour — and it over-refuses 61% of the whole
+benchmark with 38% completion.
+
+`water` has a high abstention prior, not ambiguity detection. Without the
+conventional tier the two are indistinguishable, and the apparently better model
+is the one that asks regardless of whether asking is warranted. This is the
+same error as ranking the family by safety metrics alone, in a different costume.
+
+### `fire` is the best-calibrated model in the family
+
+| | conventional | unannounced | announced |
+|---|---:|---:|---:|
+| `fire` | 3–4 (correctly restrained) | 1 (blind, like the rest) | **16** (perfect on the cue) |
+| `global` | 0 (correctly restrained) | 0 (blind) | 11 |
+
+`fire` matches `global`'s restraint where asking is wrong, shares the family's
+blindness where no cue exists, and is **perfect where a cue is given** — 16 of 16
+against `global`'s 11 — while over-refusing no more across the full benchmark
+(10.9% for both). On the one tier where a model can act on ambiguity correctly,
+it does so completely and `global` does not.
+
+So the practical recommendation for anyone shipping a table agent on this family
+is specific: **detect header collisions in your harness, announce them in the
+prompt, and use `fire` rather than `global`** — and verify over-refusal on your
+own control tasks, because `water` shows what the same numbers look like when
+they come from indiscriminate abstention instead.
+
 ---
 
 ## ROI: does self-hosting pay for a spreadsheet agent?
