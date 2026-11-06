@@ -101,10 +101,13 @@ whether the null was true. → [failure 10](#10-seven-of-the-benchmarks-unanswer
 ### What PLUMB does not show
 
 No training intervention in this project improved grounding in a way that
-generalises. Four were attempted: two DPO recipes (inert or slightly harmful),
-a contaminated SFT (memorisation), and a correctly-masked retrain (evaluation
-would not replicate). The one change that *did* move a safety metric
-significantly was a prompt change, not a fine-tune: an explicit decision rule
+generalises. Five were attempted: two DPO recipes (inert or slightly harmful),
+a contaminated SFT (memorisation), a correctly-masked retrain (evaluation would
+not replicate), and a fifth on clean audited held-out data with every known
+defect fixed, which made the model answer all 96 tasks and never abstain. The
+changes that *did* move a safety metric significantly were not fine-tunes:
+detecting column collisions in the harness eliminated silent guessing entirely
+(p = 3.1e-05), and an explicit decision rule
 cut fabrication 37.5 points at p = 0.031, while raising over-refusal 10.9
 points at p = 0.016, which is a trade rather than a win.
 
@@ -1411,6 +1414,64 @@ Cohere ships has that defect.
 
 ---
 
+## The fifth training attempt, with nothing left to blame
+
+Four training runs failed for reasons that were eventually traced to something
+other than training: contamination, a wrong loss mask, a broken evaluation
+path, an unaudited corpus. The fifth had all of them fixed at once.
+
+- **Data**: 376 tasks generated fresh, sharing no instruction or sheet with the
+  benchmark, so the benchmark is genuinely held out.
+- **Audited**: 100% on every probe by `scripts/audit_corpus.py`, after
+  `clean_corpus.py` normalised the write-set schema and dropped 43 tasks that
+  could not be verified.
+- **Loss mask**: verified on a real batch before training, 6.4% unmasked,
+  decoding to exactly the JSON completion.
+- **Schema**: 96 SFT rows carry edits, where the unaudited corpus produced zero.
+- **Contamination**: checked inside the job, no overlap.
+
+It produced the worst model in the project.
+
+| metric | n | converted base | clean SFT | paired |
+|---|---:|---:|---:|---|
+| `silent_guess_rate` | 16 | 31.2% | **100.0%** | 11 discordant, all worse, **p = 0.001** |
+| `fabrication_rate` | 9 | 44.4% | **100.0%** | 5 discordant, all worse, p = 0.062 |
+| `over_refusal_rate` | 71 | 9.9% | **0.0%** | 7 discordant, all "better" |
+| `completion_rate` | 71 | 77.5% | 78.9% | unchanged |
+| `collateral_write_rate` | 32 | 0.0% | 0.0% | unchanged |
+
+Measured on the corrected benchmark, two identical replicates. The status
+distribution explains it in one line: the trained model returns **`answered` on
+all 96 tasks**. It never declines and never asks.
+
+So its `over_refusal_rate` is a perfect 0.0%, better than the base model's, and
+it is achieved by never refusing anything, including the things it should
+refuse. **This is the first DPO collapse inverted.** That one scored 0.0% on
+every safety metric by refusing everything; this one scores 0.0% on
+over-refusal by answering everything. Both look like a win on whichever half of
+the metric set you happen to be reading, and both are caught the moment you
+read the other half.
+
+### What this settles
+
+Five training interventions, five negative results. The first four each had a
+defect that could be blamed. The fifth had clean held-out data, a verified
+loss mask, a correct schema, an audited corpus and a validated evaluation path,
+and it made the model categorically worse at the thing being trained.
+
+**That is the project's training conclusion, and it is now as well supported as
+this benchmark can make it.** Supervised fine-tuning on canonical responses did
+not teach this 3.35B model to ground its answers. It taught it whichever
+response mode dominated the training set, and the dominant mode is whatever is
+most frequent: 65% `answered` in this corpus produced a model that answers
+100% of the time.
+
+That failure mode has a name worth keeping: the model learned the *distribution*
+of the labels rather than the *decision* behind them. A benchmark that reported
+only `over_refusal_rate` would have called this a 9.9-point improvement.
+
+---
+
 ## An independent check: AuditKIT, and why text-based refusal detection fails here
 
 PLUMB decides whether a model abstained by reading the `status` field of the
@@ -1642,10 +1703,11 @@ sheets across 96 tasks. That is fine for measuring a model but it makes the set
 awkward to split, and it is the reason the held-out split had to be grouped. A
 future version should generate every task from a distinct sheet.
 
-**There is no positive *training* result.** Four training interventions, all
+**There is no positive *training* result.** Five training interventions, all
 negative: two DPO recipes that are inert or slightly harmful, a full-task SFT
 adapter that changes no decision on any of 48 held-out tasks, and a retrain with
-the loss mask corrected whose evaluation would not replicate. The only training
+the loss mask corrected whose evaluation would not replicate, and a fifth on
+clean audited held-out data that made the model categorically worse. The only training
 numbers that looked like a win were measured on the training data.
 
 The project does have one significant result, and it is a prompt change rather

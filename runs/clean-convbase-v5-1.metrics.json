@@ -1,0 +1,17 @@
+{
+  "n_tasks": 96,
+  "fabrication_rate": 0.4444,
+  "silent_guess_rate": 0.3125,
+  "collateral_write_rate": 0.0,
+  "over_refusal_rate": 0.0986,
+  "completion_rate": 0.7746,
+  "parse_success_rate": 1.0,
+  "format_strict_rate": 1.0,
+  "denominators": {
+    "unanswerable": 9,
+    "answerable": 71,
+    "ambiguous": 16,
+    "with_write_set": 32
+  },
+  "label": "clean-convbase-v5-1"
+}
