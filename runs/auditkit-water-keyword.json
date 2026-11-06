@@ -1,0 +1,14 @@
+{
+  "run": "runs/sweep-water-1.jsonl",
+  "mode": "keyword",
+  "scored_by_both": 96,
+  "not_testable": 0,
+  "agree": 31,
+  "disagree": 65,
+  "agreement_rate": 32.3,
+  "matrix": {
+    "plumb_abstained__auditkit_answered": 65,
+    "plumb_answered__auditkit_answered": 27,
+    "plumb_abstained__auditkit_abstained": 4
+  }
+}
