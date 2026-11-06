@@ -1011,10 +1011,10 @@ calculation up front: with 7 paired observations on `fabrication_rate` an exact
 two-sided McNemar needs 6 discordant pairs in one direction to reach p < 0.05,
 so a non-significant result there is not evidence against the hypothesis.
 
-Doing this mattered more than expected. By the time the retrain finished there
-were five plausible ways to slice a 48-task result, and having written down
-which two metrics were primary before seeing any of them is the only reason the
-reported number is not a choice.
+The reason to bother: a 48-task result can be sliced several defensible ways,
+and on a set this small the choice of slice can decide whether there is an
+effect. Writing the choice down first is what makes the reported number a
+measurement rather than a selection.
 
 ### Compare two runs properly
 
