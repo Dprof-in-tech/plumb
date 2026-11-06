@@ -1414,7 +1414,7 @@ Cohere ships has that defect.
 
 ---
 
-## Training: six attempts, six negative results
+## Training: seven attempts, seven negative results
 
 Four training runs failed for reasons eventually traced to something other
 than training: contamination, a wrong loss mask, a broken evaluation path, an
@@ -1490,23 +1490,98 @@ to learn surface form while the model falls back to its prior, which is to
 answer. Every attempt so far varied the *data*; none varied the *recipe*. That
 experiment has not been run and this document does not claim its outcome.
 
+### Attempt 7: the recipe was the problem, and fixing it made grounding worse
+
+Six attempts varied the data. None varied the recipe, which was identical
+throughout: rank-8 LoRA on attention projections at **2e-6** for two epochs.
+That learning rate is a full-fine-tuning rate, roughly fifty times below the
+usual LoRA range, so attempt 7 changed it, pre-registered in
+`docs/preregistration-recipe.md` before the run existed.
+
+| | attempts 1-6 | attempt 7 |
+|---|---|---|
+| learning rate | 2e-6 | **1e-4** |
+| LoRA rank / alpha | 8 / 16 | **32 / 64** |
+| target modules | attention only | **all linear projections** |
+| epochs | 2 | **3** |
+
+Data, benchmark, serving path and all three gates held fixed.
+
+**The mechanism hypothesis was correct.** On byte-identical data, `train_loss`
+fell from 1.051 to **0.0168**, a sixty-fold drop. The previous six runs were
+barely fitting their training data at all, which retroactively explains the
+most confusing observation in this document: on the held-out split in attempt
+4, the adapter reworded 5 of 48 replies and changed zero decisions. That was
+recorded as "it learned phrasing, not grounding" and treated as a fact about
+what SFT teaches. It was a fact about the learning rate.
+
+**And the outcome is the seventh negative.** Measured on the corrected
+benchmark, two replicates:
+
+| metric | n | base | attempt 7 | paired |
+|---|---:|---:|---:|---|
+| `fabrication_rate` | 9 | 22.2% | **100.0%** | 7 discordant, all worse, **p = 0.016** |
+| `silent_guess_rate` | 16 | 31.2% | 31.2% | 3 vs 3, p = 1.00 |
+| `over_refusal_rate` | 71 | 9.9% | 0.0% | 7 discordant |
+| `completion_rate` | 71 | 77.5% | **91.5%** | 11 of 12 better, **p = 0.006** |
+| `collateral_write_rate` | 32 | 0.0% | 0.0% | unchanged |
+
+It passed the precondition that killed attempts 5 and 6, returning a genuine
+mix of 85 answered and 11 clarifications rather than a constant. It got
+significantly **better at the job**: completion up 14 points at p = 0.006. And
+it answered all nine genuinely unanswerable tasks.
+
+Against the pre-registered criteria this fails. Condition 1 required a safety
+improvement of more than one task on fabrication or silent guessing; neither
+improved and fabrication significantly regressed. The guard conditions both
+pass, but they were guards, not the target.
+
+**A second pre-registration gap, recorded.** The outcome table had rows for
+improvement, non-significant improvement, a constant-output model, and an
+abstention trade. It had no row for *a guard improving significantly while a
+safety metric significantly regresses*, which is what happened. That is the
+second time a pre-registration here has missed the outcome that occurred; the
+first was failure 7's, which had no row for the primary metric worsening.
+Writing the criteria down still beat not writing them, because it is the reason
+this is reported as a failure rather than as a 14-point completion win.
+
 ### What this settles
 
-Six training interventions, six negative results. The first four each had a
-defect that could be blamed. The fifth had clean held-out data, a verified
-loss mask, a correct schema, an audited corpus and a validated evaluation path,
-and it made the model categorically worse at the thing being trained.
+Seven interventions, seven negative results, across both axes that could be
+varied. The data axis: contaminated, clean, imbalanced, exactly balanced, 96
+examples to 450. The recipe axis: a learning rate too low to fit the data, and
+one high enough to fit it almost exactly.
 
-**That is the project's training conclusion on the data axis, which is the
-only axis these six runs varied.** Supervised fine-tuning on canonical responses did
-not teach this 3.35B model to ground its answers. It taught it whichever
-response mode dominated the training set, and the dominant mode is whatever is
-most frequent: 65% `answered` in this corpus produced a model that answers
-100% of the time.
+The two ends of the recipe axis fail in opposite directions, and together they
+are the finding:
 
-That failure mode has a name worth keeping: the model learned the *distribution*
-of the labels rather than the *decision* behind them. A benchmark that reported
-only `over_refusal_rate` would have called this a 9.9-point improvement.
+| | learning rate 2e-6 | learning rate 1e-4 |
+|---|---|---|
+| `train_loss` | 1.05 | 0.017 |
+| what the model learned | almost nothing; rewording only | the corpus, nearly exactly |
+| behaviour | emits a constant, answers everything | a real mix, answers more |
+| `completion_rate` | 77.5% | **91.5%**, p = 0.006 |
+| `fabrication_rate` | 100.0% | **100.0%** |
+
+**Supervised fine-tuning on canonical responses taught this 3.35B model to
+answer.** Too weak a recipe changed nothing; a strong enough one made it
+significantly better at completing tasks and removed its abstention entirely.
+At no point, under any data distribution, did it learn *when not to answer*.
+
+That is a clean negative for a grounding track and it is the opposite of what
+the track asks for. It is also, on its own terms, a useful result: the thing
+that improved was capability, the thing that broke was the safety behaviour,
+and only the guard metrics distinguish the two. A submission reporting
+`completion_rate` alone would call attempt 7 a 14-point win.
+
+**Training stopped here**, per the pre-registered stopping rule. Seven
+controlled attempts is the finding, and further recipe search would be
+searching for a configuration that flatters the conclusion rather than testing
+it.
+
+The improvement this project does have is not a fine-tune: detecting column
+collisions in the harness takes `silent_guess_rate` from 100.0% to 0.0% at
+p = 3.1e-05, with every guard unchanged.
 
 ---
 
@@ -1741,7 +1816,7 @@ sheets across 96 tasks. That is fine for measuring a model but it makes the set
 awkward to split, and it is the reason the held-out split had to be grouped. A
 future version should generate every task from a distinct sheet.
 
-**There is no positive *training* result.** Six training interventions, all
+**There is no positive *training* result.** Seven training interventions, all
 negative: two DPO recipes that are inert or slightly harmful, a full-task SFT
 adapter that changes no decision on any of 48 held-out tasks, and a retrain with
 the loss mask corrected whose evaluation would not replicate, and a fifth on

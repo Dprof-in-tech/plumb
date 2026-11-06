@@ -171,15 +171,18 @@ def main():
         args=cfg,
         train_dataset=ds,
         processing_class=tokenizer,
-        # Copied verbatim from the previous run's adapter_config.json so that
-        # the loss mask is the only variable that changes between the two runs.
+        # Defaults reproduce attempts 1-6 exactly, so the recipe is only
+        # different when explicitly overridden. Attempt 7 varies it: six runs
+        # changed the data and never the recipe, and 2e-6 is a full-fine-tuning
+        # learning rate roughly fifty times below the usual LoRA range.
         peft_config=LoraConfig(
-            r=8,
-            lora_alpha=16,
+            r=int(os.environ.get("PLUMB_LORA_R", "8")),
+            lora_alpha=int(os.environ.get("PLUMB_LORA_ALPHA", "16")),
             lora_dropout=0.05,
             task_type="CAUSAL_LM",
             bias="none",
-            target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+            target_modules=os.environ.get(
+                "PLUMB_LORA_TARGETS", "q_proj,k_proj,v_proj,o_proj").split(","),
         ),
     )
 
