@@ -153,6 +153,8 @@ def main():
         bf16=True,
         fp16=False,
         gradient_checkpointing=True,
+        # reentrant checkpointing + PEFT raises "element 0 does not require grad"
+        gradient_checkpointing_kwargs={"use_reentrant": False},
         logging_steps=1,
         save_strategy="epoch",
         save_total_limit=2,
