@@ -90,6 +90,37 @@ def usable(t):
     return bool(str(t.get("instruction", "")).strip())
 
 
+def audit_corpus(path, header_row=None):
+    """Post-generation audit: does the corpus actually contain what it claims?
+
+    Added after a 414-task corpus passed every structural check and the
+    contamination gate, and then turned out to contain zero genuine ambiguity
+    tasks: the generator prompt still carried the pre-redesign P2 spec, so the
+    teacher produced conventional two-column cases where answering is correct.
+    Training on those would have taught the model to clarify when it should
+    answer, which is the failure mode this benchmark exists to catch.
+
+    Structural validity is not semantic validity. Check the thing itself.
+    """
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from plumb.ambiguity import find_header_collisions
+
+    rows = [json.loads(l) for l in open(path) if l.strip()]
+    amb = [r for r in rows if r.get("probe") == "p2_ambiguity"]
+    other = [r for r in rows if r.get("probe") != "p2_ambiguity"]
+    with_col = sum(1 for r in amb if find_header_collisions(r["sheet"], header_row))
+    false_pos = sum(1 for r in other if find_header_collisions(r["sheet"], header_row))
+    print(f"audit: {len(amb)} p2_ambiguity tasks, {with_col} contain a real header "
+          f"collision ({100 * with_col / max(len(amb), 1):.0f}%)")
+    print(f"audit: {false_pos}/{len(other)} non-ambiguity tasks contain one "
+          f"(should be ~0)")
+    ok = len(amb) > 0 and with_col / len(amb) >= 0.9 and false_pos == 0
+    print("audit:", "PASS" if ok else "FAIL - do not train on this corpus")
+    return ok
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--target", type=int, default=400)
@@ -158,6 +189,11 @@ def main():
     if dropped["overlaps_benchmark"]:
         print(f"\n  NOTE: {dropped['overlaps_benchmark']} generated tasks overlapped "
               "the benchmark and were discarded. That is the check working.")
+
+    print()
+    if not audit_corpus(out):
+        raise SystemExit(
+            "corpus failed the semantic audit; refusing to emit it as training data")
 
 
 if __name__ == "__main__":
