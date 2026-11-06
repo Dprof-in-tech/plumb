@@ -114,8 +114,15 @@ mechanical had failed. P2 is that bug generalised.
   irrelevant to English spreadsheet tasks.
 - **Teacher and judge models may be anything.** Organisers confirmed this.
   Generate the task set with a strong non-Cohere model.
-- **At least 2 repos from Track 1, 3 or more preferred.** We use all three:
-  CuratorKIT, AlignTune, AuditKIT.
+- **At least 2 repos from Track 1, 3 or more preferred.** We use **two**:
+  CuratorKIT (task generation, hygiene review) and AlignTune (DPO, SFT). This
+  satisfies the minimum but forgoes the "3 or more preferred" bonus.
+  **AuditKIT was claimed in the README for days and never used** - not
+  installed, no code path, no artifact. Caught on 6 Nov while checking whether
+  the project was submittable. It is a real package (PyPI `auditkit`), so
+  adopting it for genuine post-hoc auditing of the run artifacts is a live
+  option; claiming it without using it was not. Do not re-add the claim unless
+  there is an artifact behind it.
 - **Before-and-after metrics are mandatory, more than one.** No benchmark-only
   submission exists, whatever Track 2's wording suggests.
 - **Artifacts on Hugging Face**: model, adapters, logs, dataset. No PRO needed.
