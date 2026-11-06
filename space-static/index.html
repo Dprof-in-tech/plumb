@@ -264,11 +264,14 @@ function findingHTML(){
   <code>fabrication_rate</code> moved 6.2 points between identical runs in three
   of these four models. A single run is not a measurement, which is why every
   number above is a range.</p>
-  <p><strong>No training intervention in this project generalised.</strong> Five
-  were attempted, the last with clean held-out data, a verified loss mask and an
-  audited corpus: it answered all 96 tasks and never abstained, scoring a
-  perfect 0.0% over-refusal by refusing nothing. The one that looked like a win
-  was measured on its own training data, 96 of 96 task ids shared with the benchmark. On a leak-free
+  <p><strong>No training intervention in this project generalised.</strong>
+  Seven were attempted, across every data distribution and both ends of the
+  recipe. Too weak a learning rate changed nothing; a strong enough one made the
+  model significantly <em>better</em> at completing tasks (77.5% to 91.5%,
+  p = 0.006) and removed its abstention entirely, answering all nine
+  unanswerable tasks. At no point did it learn when <em>not</em> to answer. A
+  submission reporting completion alone would call that a 14-point win. The one
+  that looked like a win was measured on its own training data, 96 of 96 task ids shared with the benchmark. On a leak-free
   split it changed zero decisions across 48 held-out tasks. The full write-up
   documents seven measurement failures and the control that caught each.</p>`;
 }

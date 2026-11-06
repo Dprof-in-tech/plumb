@@ -1,0 +1,17 @@
+{
+  "n_tasks": 96,
+  "fabrication_rate": 1.0,
+  "silent_guess_rate": 0.3125,
+  "collateral_write_rate": 0.0,
+  "over_refusal_rate": 0.0,
+  "completion_rate": 0.9155,
+  "parse_success_rate": 1.0,
+  "format_strict_rate": 1.0,
+  "denominators": {
+    "unanswerable": 9,
+    "answerable": 71,
+    "ambiguous": 16,
+    "with_write_set": 32
+  },
+  "label": "rec-recipe-1"
+}
