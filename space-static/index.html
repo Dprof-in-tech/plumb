@@ -41,8 +41,10 @@ a{color:var(--accent)}
 .v{margin:.25em 0;font-size:.88rem;display:flex;gap:.5em;align-items:flex-start}
 .v .m{flex:0 0 auto}
 .ok{color:var(--ok)} .bad{color:var(--bad)} .warn{color:var(--warn)}
-select,textarea{font:inherit;background:var(--panel);color:var(--ink);
+select,textarea,input[type=number]{font:inherit;background:var(--panel);color:var(--ink);
   border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
+.big{font-size:1.5rem;font-weight:600;font-family:var(--mono)}
+ol.cl{padding-left:1.2em} ol.cl li{margin:.9em 0}
 textarea{font-family:var(--mono);font-size:.86rem;min-height:110px;resize:vertical}
 label{display:block;font-size:.82rem;color:var(--muted);margin:1em 0 .3em;
   text-transform:uppercase;letter-spacing:.06em}
@@ -71,6 +73,8 @@ a real run.</p>
   <button role="tab" aria-selected="true" data-p="compare">Compare the family</button>
   <button role="tab" aria-selected="false" data-p="finding">The finding</button>
   <button role="tab" aria-selected="false" data-p="score">Score a reply</button>
+  <button role="tab" aria-selected="false" data-p="roi">What it costs</button>
+  <button role="tab" aria-selected="false" data-p="checklist">Checklist</button>
 </div>
 
 <section class="panel" id="compare">
@@ -88,6 +92,24 @@ a real run.</p>
 </section>
 
 <section class="panel" id="finding" hidden></section>
+
+<section class="panel" id="roi" hidden>
+  <h2>Does self-hosting pay for your volume?</h2>
+  <p>Token counts and throughput are measured from this benchmark's own 96-task
+  runs, not estimated. Put in your volume and your rate.</p>
+  <div class="callout" id="roimeasured"></div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+    <div><label for="vol">tasks per month</label>
+      <input id="vol" type="number" value="50000" min="1" step="1000"></div>
+    <div><label for="rate">GPU $/hour</label>
+      <input id="rate" type="number" value="1.006" min="0" step="0.001"></div>
+    <div><label for="util">GPU utilisation %</label>
+      <input id="util" type="number" value="100" min="1" max="100" step="5"></div>
+  </div>
+  <div id="roiout"></div>
+</section>
+
+<section class="panel" id="checklist" hidden></section>
 
 <section class="panel" id="score" hidden>
   <p>The scorer is mechanical, and you can drive it. Pick a task, write what a
@@ -237,6 +259,117 @@ function findingHTML(){
   documents seven measurement failures and the control that caught each.</p>`;
 }
 
+const ROI = await (await fetch("./roi.json")).json();
+
+function money(x){ return "$" + x.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function roi(){
+  const M=ROI.measured;
+  const vol=Math.max(1, Number(document.getElementById("vol").value)||1);
+  const rate=Math.max(0, Number(document.getElementById("rate").value)||0);
+  const util=Math.min(100, Math.max(1, Number(document.getElementById("util").value)||100))/100;
+  const secPerTask=(M.prompt_tokens_mean+M.completion_tokens_mean)/M.total_tokens_per_s;
+  const gpuHours=vol*secPerTask/3600/util;
+
+  // Two different ways to buy a GPU, and they give very different answers.
+  // Metered assumes you pay only for compute consumed (serverless). Dedicated
+  // is a box billed around the clock whether or not you are using it, which is
+  // what most teams actually run.
+  const metered  = gpuHours*rate;
+  const dedicated = rate*24*30;
+  const perTaskSelfMetered = metered/vol;
+
+  const rows=ROI.hosted.map(h=>{
+    const perTask=(M.prompt_tokens_mean*h.in_per_mtok + M.completion_tokens_mean*h.out_per_mtok)/1e6;
+    return {h, cost:vol*perTask, perTask,
+            ratio: perTaskSelfMetered>0 ? perTask/perTaskSelfMetered : Infinity,
+            breakeven: perTask>0 ? dedicated/perTask : Infinity};
+  });
+  const bestHosted=rows.reduce((a,b)=>a.cost<b.cost?a:b);
+
+  let verdict, detail;
+  if (bestHosted.cost < dedicated && bestHosted.cost < metered){
+    verdict="Per-token billing is cheaper at this volume.";
+    detail=`${esc(bestHosted.h.name)} at ${money(bestHosted.cost)}/mo beats both a dedicated GPU (${money(dedicated)}) and metered compute (${money(metered)}).`;
+  } else if (metered <= bestHosted.cost && bestHosted.cost < dedicated){
+    verdict="It depends on how you buy the GPU.";
+    detail=`Metered compute wins at ${money(metered)}/mo, but a dedicated instance billed around the clock costs ${money(dedicated)}/mo, which ${esc(bestHosted.h.name)} beats at ${money(bestHosted.cost)}. Self-hosting only pays here if you can rent by the second.`;
+  } else {
+    verdict="Self-hosting is cheaper at this volume.";
+    detail=`Even a dedicated instance at ${money(dedicated)}/mo beats ${esc(bestHosted.h.name)} at ${money(bestHosted.cost)}.`;
+  }
+
+  document.getElementById("roiout").innerHTML=`
+    <p class="big" style="margin-top:1.2em">${verdict}</p>
+    <p>${detail}</p>
+    <table><thead><tr><th>option</th><th>per month</th><th>per 1k tasks</th><th>vs metered self-host</th></tr></thead>
+    <tbody>
+      <tr><td><strong>self-host, metered</strong> (${gpuHours.toFixed(1)} GPU-hours)</td>
+          <td>${money(metered)}</td><td>${money(metered/vol*1000)}</td><td>-</td></tr>
+      <tr><td><strong>self-host, dedicated 24/7</strong></td>
+          <td>${money(dedicated)}</td><td>${money(dedicated/vol*1000)}</td><td>-</td></tr>
+      ${rows.map(r=>`<tr><td>${esc(r.h.name)}</td><td>${money(r.cost)}</td>
+        <td>${money(r.cost/vol*1000)}</td><td>${r.ratio.toFixed(1)}x</td></tr>`).join("")}
+    </tbody></table>
+    <p>At ${Math.round(util*100)}% utilisation this workload needs
+    <strong>${(3600/secPerTask).toFixed(0)} tasks per GPU-hour</strong>
+    (${secPerTask.toFixed(2)} s each), so ${vol.toLocaleString()} tasks is
+    ${gpuHours.toFixed(1)} GPU-hours, or
+    <strong>${(100*gpuHours/(24*30)).toFixed(1)}%</strong> of a month's capacity
+    on one dedicated GPU.</p>
+    <p><strong>Break-even against that dedicated instance</strong> (${money(dedicated)}/mo):</p>
+    <ul>${rows.map(r=>`<li>vs ${esc(r.h.name)}: <strong>${Math.round(r.breakeven).toLocaleString()}</strong>
+      tasks/month (${Math.round(r.breakeven/30/24).toLocaleString()}/hour sustained)</li>`).join("")}</ul>
+    <p>${esc(ROI.note)}</p>
+    <p>Self-hosting also wins on things that are not price: data residency, a
+    frozen model that will not be deprecated underneath you, and the ability to
+    fine-tune. If none of those is a requirement, the numbers usually say rent,
+    and at these volumes the grounding differences shown in the other tabs
+    matter far more than the bill.</p>`;
+}
+
+function checklistHTML(){
+  return `<h2>Four things this benchmark learned the hard way</h2>
+  <p>Each has a number and a script behind it. None needs a judge model.</p>
+  <ol class="cl">
+  <li><strong>Never report a safety metric without its capability guard.</strong>
+  <code>tiny-aya-earth</code> scores 0.0% on fabrication, silent guessing and
+  collateral writes, and answers nothing at all. Our own first DPO run did the
+  same from the other side. Ranking four shipped models by safety alone inverts
+  the ranking by usefulness exactly.
+  <br><em>Gate it:</em> <code>scripts/plumb_check.py</code> fails a model whose
+  safety sweep is bought with abstention, even when every safety threshold passes.</li>
+
+  <li><strong>Do not measure refusal by reading prose.</strong> AuditKIT's keyword
+  detector found 0 of 24 abstentions from <code>tiny-aya-global</code>, and 1 of
+  96 from <code>earth</code>, because every refusal here is a JSON field value
+  rather than a sentence. The error is not random: it grows with how much the
+  model abstains, so it is worst exactly where abstention matters.
+  <br><em>Check it:</em> <code>scripts/auditkit_crosscheck.py</code> runs both
+  mechanisms over the same replies.</li>
+
+  <li><strong>Identical replicates tell you about the model, not the harness.</strong>
+  At temperature 0, <code>fabrication_rate</code> moved 6.2 points between
+  identical runs on three of four vendor models. The one perfectly stable model
+  is the one that refuses everything, because it has no near-ties to flip. One
+  flipped task is 6.25 points on a 16-task probe.
+  <br><em>Measure it:</em> <code>scripts/replicate_variance.py</code> reports
+  ranges and names the boundary tasks.</li>
+
+  <li><strong>Check that your training data is not your eval data.</strong> All
+  three of this project's first interventions were trained on its own benchmark,
+  96 of 96 task ids shared, recorded in the files' own provenance metadata, and
+  nobody noticed for four days. The apparent win vanished on a leak-free split.
+  <br><em>Gate it:</em> <code>scripts/check_contamination.py</code> is two lines
+  to run and would have caught it on day one.</li>
+  </ol>
+  <p>A fifth, specific to table agents: <strong>no 3.35B model in this family
+  notices that two columns share a header.</strong> Detect it in your harness
+  with <code>plumb.ambiguity.find_header_collisions()</code> and say so in the
+  prompt; that is measured to take <code>global</code> from 0/16 to 11/16 and
+  <code>fire</code> from 1/16 to 16/16.</p>`;
+}
+
 function score(){
   const t=DATA.tasks[document.getElementById("spick").value];
   const raw=document.getElementById("sreply").value;
@@ -258,6 +391,14 @@ document.getElementById("spick").value="curator-1-001";
 document.getElementById("pick").addEventListener("change",render);
 document.getElementById("sgo").addEventListener("click",score);
 document.getElementById("finding").innerHTML=findingHTML();
+document.getElementById("checklist").innerHTML=checklistHTML();
+document.getElementById("roimeasured").innerHTML=
+  `Measured on ${ROI.measured.tasks} tasks of <code>${esc(ROI.measured.model)}</code>: `+
+  `<strong>${ROI.measured.prompt_tokens_mean}</strong> prompt tokens and `+
+  `<strong>${ROI.measured.completion_tokens_mean}</strong> completion tokens per task, `+
+  `${ROI.measured.total_tokens_per_s} tok/s end to end on ${esc(ROI.measured.hardware)}.`;
+for(const id of ["vol","rate","util"]) document.getElementById(id).addEventListener("input",roi);
+roi();
 render();
 
 document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener("click",()=>{
