@@ -54,7 +54,8 @@ ability to abstain was always there; the ability to *notice* was not.
 The usual mitigation, "instruct the model to ask when unsure," assumes it knows
 when it is unsure. At this scale it does not, and no prompt fixes that, because
 a prompt cannot describe a collision the model has not seen. Detect duplicate
-headers in your harness, then announce them.
+headers in your harness, then announce them, **which takes both models from
+0/16 and 1/16 to 16/16** using `plumb.ambiguity`, shipped in this repository.
 
 A trap worth knowing: `tiny-aya-water` asks 7 of 16 unannounced and looks like
 the family's best detector. It also asks 16 of 16 on tasks where a defensible
@@ -165,6 +166,102 @@ What PLUMB does not do: it does not score multi-turn tool use, it does not
 cover non-English sheets, and with 16 tasks per probe it will not resolve small
 differences between two decent models. It is a pre-ship smoke test for a
 failure class that standard evals miss, not a leaderboard.
+
+---
+
+## What you can actually run
+
+Four of this project's findings come with the tool that acts on them, not just
+the advice. All are dependency-free and none calls a model to decide anything.
+
+### Detect column ambiguity before the model sees it
+
+The measurement is that no 3.35B model in this family notices that two columns
+share a header. Duplicate headers are a schema property, so this belongs in your
+harness:
+
+```python
+from plumb.ambiguity import find_header_collisions, announce
+
+collisions = find_header_collisions(sheet_cells)
+if collisions:
+    instruction += " " + announce(collisions)
+```
+
+`find_header_collisions` folds case, whitespace, underscores and trailing
+punctuation, and deliberately does **not** fold plurals, because a harness that
+over-reports collisions teaches its users to ignore it.
+
+Scored against the benchmark rather than fixtures, by
+`scripts/test_ambiguity.py`: **16/16 recall on `p2_ambiguity` in both P2
+variants, zero false positives across the other 160 tasks.**
+
+#### It closes the failure mode completely
+
+The detector was then run end to end: take the unannounced tasks, add whatever
+`announce()` produces, and re-measure. Two replicates each, 100% parse
+throughout, both replicates identical.
+
+| model | unannounced | **after `plumb.ambiguity`** | benchmark's hand-written announcement |
+|---|---:|---:|---:|
+| `tiny-aya-global` | 0/16 | **16/16** | 11/16 |
+| `tiny-aya-fire` | 1/16 | **16/16** | 16/16 |
+
+A measured 0-of-16 failure becomes 16 of 16, from a schema check and a sentence.
+No training, no larger model, no judge.
+
+It also beats the benchmark's own announcement on `global` by five tasks, and
+the difference is instructive. Both wordings name the collision; only
+`announce()` adds what to do about it, "ask for clarification rather than
+choosing one". **Naming the ambiguity is necessary but not sufficient at this
+scale: you have to state the required action too.** That is a one-sentence
+change worth more than any fine-tune attempted in this project.
+
+### Gate a model in CI
+
+```bash
+python3 scripts/plumb_check.py --api-id my-model \
+    --max-fabrication 0.05 --max-silent-guess 0.0 --min-completion 0.70
+```
+
+Exits non-zero when a limit breaks, so grounding becomes a build check rather
+than a report read once. It does two things a bare metric run does not.
+
+It **fails a model whose clean safety sweep was bought with abstention**, even
+when every individual safety threshold passes. That is the `tiny-aya-earth`
+failure mode, and `scripts/test_plumb_check.py` confirms against real recorded
+metrics that `earth` clears every safety threshold on its own and is still
+failed by this check.
+
+It **warns when a pass clears its threshold by less than measured run-to-run
+noise**. A `fabrication_rate` that beats its limit by 1.5 points has not really
+beaten it, because that metric moved 6.2 points between identical runs on three
+of four vendor models.
+
+Safety thresholds are opt-in: there is no universal acceptable fabrication rate,
+only one you have decided to accept. Guard thresholds have defaults, because a
+model that abstains its way to a clean sweep is never acceptable.
+
+### Check your training data is not your eval data
+
+```bash
+python3 scripts/check_contamination.py --eval tasks/benchmark.jsonl \
+    --train tasks/sft.jsonl tasks/pairs.jsonl
+```
+
+Matches exact ids, ids after stripping a suffix, and eval instructions embedded
+in training text. Two lines to run, and it would have saved this project four
+days.
+
+### Report variance instead of assuming it away
+
+```bash
+python3 scripts/replicate_variance.py runs/mine-1.jsonl runs/mine-2.jsonl
+```
+
+Prints each metric as a range across replicates and names the tasks whose
+verdict differs between runs. It compares every scored flag, not just the
+status, because a reply can keep its status and change which cell it wrote.
 
 ---
 
