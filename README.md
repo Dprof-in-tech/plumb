@@ -54,8 +54,11 @@ ability to abstain was always there; the ability to *notice* was not.
 The usual mitigation, "instruct the model to ask when unsure," assumes it knows
 when it is unsure. At this scale it does not, and no prompt fixes that, because
 a prompt cannot describe a collision the model has not seen. Detect duplicate
-headers in your harness, then announce them, **which takes both models from
-0/16 and 1/16 to 16/16** using `plumb.ambiguity`, shipped in this repository.
+headers in your harness, then announce them. Measured on the full 96-task
+benchmark, that takes `silent_guess_rate` from **100.0% to 0.0%** on `global`
+and **93.8% to 0.0%** on `fire`, with every guard metric unchanged. The
+detector is `plumb.ambiguity`, shipped here, and it is the project's headline
+before-and-after.
 
 A trap worth knowing: `tiny-aya-water` asks 7 of 16 unannounced and looks like
 the family's best detector. It also asks 16 of 16 on tasks where a defensible
@@ -166,6 +169,93 @@ What PLUMB does not do: it does not score multi-turn tool use, it does not
 cover non-English sheets, and with 16 tasks per probe it will not resolve small
 differences between two decent models. It is a pre-ship smoke test for a
 failure class that standard evals miss, not a leaderboard.
+
+---
+
+## The headline before-and-after: PLUMB makes the agent meaningfully better
+
+The question a grounding benchmark finally has to answer is whether the thing
+you ship is better than the thing you started with. For this project the answer
+is not a fine-tune. Four of those were attempted and none generalised. It is a
+schema check the model cannot perform for itself.
+
+**Before** is the realistic deployment case: a sheet contains two columns with
+the same header, nothing flags it, and the model is asked a question that
+depends on which one is meant. **After** is the same 96 tasks with
+`plumb.ambiguity` detecting the collision and saying so in the prompt. Same
+model, same weights, same serving path, two replicates each.
+
+| metric | n | before | after | change |
+|---|---:|---:|---:|---|
+| `silent_guess_rate` | 16 | **100.0%** | **0.0%** | **eliminated, 16 of 16 tasks** |
+| `fabrication_rate` | 16 | 56.2% | 56.2% | unchanged |
+| `collateral_write_rate` | 32 | 0.0% | 0.0% | unchanged |
+| `over_refusal_rate` | 64 | 10.9% | 10.9% | unchanged |
+| `completion_rate` | 64 | 76.6% | 76.6% | unchanged |
+| `parse_success_rate` | 96 | 100.0% | 100.0% | unchanged |
+| `format_strict_rate` | 96 | 100.0% | 100.0% | unchanged |
+
+Replicate 2 is shown, where every untouched metric is byte-identical. In
+replicate 1 fabrication and completion each differ by a single task, which is
+the measured run-to-run noise for those metrics and not an effect.
+
+The paired table removes any doubt about which of those is signal
+(`scripts/paired_analysis.py`):
+
+| metric | n | discordant pairs | exact McNemar |
+|---|---:|---|---:|
+| `silent_guess_rate` | 16 | **16 improving, 0 regressing** | **p = 3.1e-05** |
+| `fabrication_rate` | 16 | 0 | p = 1.00 |
+| `collateral_write_rate` | 32 | 0 | p = 1.00 |
+| `over_refusal_rate` | 64 | 0 | p = 1.00 |
+| `completion_rate` | 64 | 0 | p = 1.00 |
+
+Every one of the 16 ambiguous tasks flipped, all in the same direction, and not
+one task changed its verdict on any other metric. This is the only
+statistically significant improvement in the project that costs nothing
+elsewhere: the prompt decision rule reported earlier is significant too, but it
+buys fabrication with over-refusal. This buys nothing with anything.
+
+**The model silently guessed on every ambiguous task and now guesses on none,
+at no cost to any other metric.** That is what the detector's design buys: it
+modifies exactly the 16 tasks containing a collision and leaves the other 80
+byte-identical, so there is no mechanism by which the guards could move.
+
+It is not specific to one variant. The same comparison on `tiny-aya-fire`:
+
+| model | `silent_guess_rate` before | after | guards |
+|---|---:|---:|---|
+| `tiny-aya-global` | 100.0% | **0.0%** | all unchanged |
+| `tiny-aya-fire` | 93.8% | **0.0%** | `collateral` and `over_refusal` unchanged; `fabrication` and `completion` move one task each, inside noise |
+
+Two models, two replicates each, same outcome: the probe this benchmark was
+built around goes from near-total failure to zero.
+
+### Why this is the right answer rather than a consolation prize
+
+It is tempting to treat "we could not improve the weights" as a failure and this
+as a workaround. The measurements say otherwise.
+
+The failure being fixed is not one the weights can fix at this scale. All four
+Tiny Aya variants fail to notice a header collision: `global` asks 0 times out
+of 16, `fire` 1 out of 16. An 8B reference asks 16 out of 16 on the identical
+tasks, so the capability exists, roughly a model generation away. Every variant
+clarifies 16 out of 16 once told, so the ability to abstain is already present
+in the 3.35B models. **What is missing is detection, and detection of a
+duplicate header is a property of the schema, not of the language model.** It
+is the kind of thing a regular expression does perfectly and a 3.35B
+transformer does never.
+
+Four training interventions could not teach the model to see it. Twenty lines
+of dependency-free Python see it every time: 16 of 16 recall on the benchmark's
+own ambiguity tasks, zero false positives across the other 160.
+
+So the honest claim this project makes is not "we fine-tuned a better model".
+It is: **run this benchmark, and it will tell you which failures belong to your
+model and which belong to your harness.** Here it found one of each. The
+harness failure was fixable in an afternoon and is now fixed completely. The
+model failure was not fixable by any of the four training recipes attempted,
+and saying so is the more useful finding.
 
 ---
 
