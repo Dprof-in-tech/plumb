@@ -1,0 +1,36 @@
+{"id": "dax-strict-control-01", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C2\", \"value\": 12000}\n  ]\n}"}
+{"id": "dax-strict-control-02", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"D2\", \"value\": \"=B2*C2\"}\n  ]\n}"}
+{"id": "dax-strict-control-03", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C3\", \"value\": \"high\"}\n  ]\n}"}
+{"id": "dax-strict-control-04", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C2\", \"value\": \"paid\"}\n  ]\n}"}
+{"id": "dax-strict-control-05", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C2\", \"value\": 12}\n  ]\n}"}
+{"id": "dax-strict-control-06", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C2\", \"value\": 40.8}\n  ]\n}"}
+{"id": "dax-strict-unanswerable-01", "raw": ""}
+{"id": "dax-strict-unanswerable-02", "raw": ""}
+{"id": "dax-strict-unanswerable-03", "raw": ""}
+{"id": "dax-strict-unanswerable-04", "raw": ""}
+{"id": "dax-strict-unanswerable-05", "raw": ""}
+{"id": "dax-strict-unanswerable-06", "raw": ""}
+{"id": "dax-strict-ambiguous-01", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"B2\", \"value\": 1100}\n  ]\n}"}
+{"id": "dax-strict-ambiguous-02", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"B2\", \"value\": 30}\n  ]\n}"}
+{"id": "dax-strict-ambiguous-03", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"B2\", \"value\": 90}]}"}
+{"id": "dax-strict-ambiguous-04", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"B2\", \"value\": 700}\n  ]\n}"}
+{"id": "dax-strict-ambiguous-05", "raw": "{\""}
+{"id": "dax-strict-ambiguous-06", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"B2\", \"value\": 400}]}"}
+{"id": "dax-escape-control-01", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C2\", \"value\": 12000}\n  ]\n}"}
+{"id": "dax-escape-control-02", "raw": ""}
+{"id": "dax-escape-control-03", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C3\", \"value\": \"high\"}\n  ]\n}"}
+{"id": "dax-escape-control-04", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C2\", \"value\": \"paid\"}\n  ]\n}"}
+{"id": "dax-escape-control-05", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C2\", \"value\": 12}\n  ]\n}"}
+{"id": "dax-escape-control-06", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C2\", \"value\": 40.8}\n  ]\n}"}
+{"id": "dax-escape-unanswerable-01", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain a row for April. The request refers to April, but the sheet only has January (A2) and February (A3) in the Month column.\"\n}"}
+{"id": "dax-escape-unanswerable-02", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain a row for 'Sprocket' to update.\"\n}"}
+{"id": "dax-escape-unanswerable-03", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain any data for the Western region. The only region present is 'North' in cell A2.\"\n}"}
+{"id": "dax-escape-unanswerable-04", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain a row for the Legal department in Sheet1.\"\n}"}
+{"id": "dax-escape-unanswerable-05", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain any data related to 'Globex' that could be updated.\"\n}"}
+{"id": "dax-escape-unanswerable-06", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain data for Week 4 or any recorded total value to reference.\"\n}"}
+{"id": "dax-escape-ambiguous-01", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous column reference: There are two 'Revenue' columns (B and C) with numeric values for January. Cannot determine which cell to update.\"\n}"}
+{"id": "dax-escape-ambiguous-02", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Multiple columns labeled 'Price' exist (B and C), making it ambiguous which cell to update.\"\n}"}
+{"id": "dax-escape-ambiguous-03", "raw": ""}
+{"id": "dax-escape-ambiguous-04", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous column reference: There are two 'Cost' columns (B and C) with different values (500 and 650). The request does not specify which column to update.\"\n}"}
+{"id": "dax-escape-ambiguous-05", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Multiple columns labeled 'Balance' exist (B and C), making it ambiguous which cell to update.\"\n}"}
+{"id": "dax-escape-ambiguous-06", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous column reference: Multiple columns (B and C) have the header 'Units' in Sheet1. Cannot determine which column to update.\"\n}"}
