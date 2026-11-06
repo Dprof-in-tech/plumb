@@ -1002,6 +1002,20 @@ python3 scripts/run.py --model api --api-id <reasoning-model> --max-tokens 2500 
 python3 scripts/inspect_run.py runs/mine.jsonl        # behaviour, not just scores
 ```
 
+### Pre-registered analyses
+
+`docs/preregistration-loss-mask.md` fixes the metrics, split, test, replication
+requirement and claim wording for the loss-mask retrain, and was committed
+before that run existed. Git history is the evidence. It also states the power
+calculation up front: with 7 paired observations on `fabrication_rate` an exact
+two-sided McNemar needs 6 discordant pairs in one direction to reach p < 0.05,
+so a non-significant result there is not evidence against the hypothesis.
+
+Doing this mattered more than expected. By the time the retrain finished there
+were five plausible ways to slice a 48-task result, and having written down
+which two metrics were primary before seeing any of them is the only reason the
+reported number is not a choice.
+
 ### Compare two runs properly
 
 ```bash
