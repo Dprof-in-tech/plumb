@@ -4,8 +4,15 @@
 in front of them supports.**
 
 Built for the Lexsi AI Safety and Alignment Hackathon, Track 1 (grounded
-answers and fewer hallucinations). Tool chain: CuratorKIT, AlignTune, AuditKIT.
-Model under test: `CohereLabs/tiny-aya-global` (3.35B).
+answers and fewer hallucinations). Track 1 tooling used: **CuratorKIT** (task
+generation and hygiene review) and **AlignTune** (DPO and SFT). Model under
+test: `CohereLabs/tiny-aya-global` (3.35B), with all four GGUF variants of the
+Tiny Aya family measured.
+
+**Interactive explorer:**
+[huggingface.co/spaces/Isaacdnigerian/plumb-benchmark](https://huggingface.co/spaces/Isaacdnigerian/plumb-benchmark)
+, four models answering the same sheet, with every reply a real recorded run
+output.
 
 ---
 
