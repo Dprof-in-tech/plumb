@@ -234,6 +234,28 @@ function findingHTML(){
   <code>earth</code> and ship a model that refuses every question. That is why
   <code>over_refusal_rate</code> and <code>completion_rate</code> are reported
   beside them, always.</p>
+  <h3>The before-and-after: the mitigation this benchmark produced</h3>
+  <p>The fix is not a fine-tune. Seven training attempts are documented in the
+  write-up and none generalised. It is a schema check the model cannot perform
+  for itself: detect duplicate headers in the harness, then say so in the
+  prompt. <strong>Before</strong> is the realistic deployment case, a collision
+  nothing flags. <strong>After</strong> is the same 96 tasks with
+  <code>plumb.ambiguity</code> announcing it. Same weights, same serving path,
+  two replicates each.</p>
+  <table><thead><tr><th>metric</th><th>n</th><th>before</th><th>after</th><th>paired result</th></tr></thead>
+  <tbody>
+  <tr><td><code>silent_guess_rate</code></td><td>16</td><td>100.0%</td><td><strong>0.0%</strong></td><td><strong>16 improving, 0 regressing, p = 3.1e-05</strong></td></tr>
+  <tr><td><code>fabrication_rate</code></td><td>16</td><td>56.2%</td><td>56.2%</td><td>0 discordant, p = 1.00</td></tr>
+  <tr><td><code>collateral_write_rate</code></td><td>32</td><td>0.0%</td><td>0.0%</td><td>0 discordant, p = 1.00</td></tr>
+  <tr><td><code>over_refusal_rate</code></td><td>64</td><td>10.9%</td><td>10.9%</td><td>0 discordant, p = 1.00</td></tr>
+  <tr><td><code>completion_rate</code></td><td>64</td><td>76.6%</td><td>76.6%</td><td>0 discordant, p = 1.00</td></tr>
+  </tbody></table>
+  <p>Every one of the 16 ambiguous tasks flipped, all in the same direction, and
+  not one task changed its verdict on any other metric. The detector modifies
+  exactly the 16 tasks containing a collision and leaves the other 80
+  byte-identical, so there is no mechanism by which the guards could move. The
+  same comparison on <code>fire</code> goes 93.8% to 0.0%. This is the only
+  significant improvement in the project that costs nothing elsewhere.</p>
   <h3>The other findings</h3>
   <p><strong>No 3.35B model here detects unannounced column ambiguity.</strong>
   Given two columns with the same header and no cue that they collide,
