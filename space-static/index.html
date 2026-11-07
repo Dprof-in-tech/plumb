@@ -270,17 +270,25 @@ function findingHTML(){
   the benchmark. That is a high abstention prior, not detection, and the two
   are indistinguishable without a control tier for ambiguity you are supposed to
   ignore.</p>
-  <p><strong>A purpose-built 14B spreadsheet model silently guesses on every
-  ambiguous request its contract cannot express.</strong> Run against
+  <p><strong>A purpose-built 14B spreadsheet model never invents a number and
+  silently edits the wrong row.</strong> Run against
   <a href="https://huggingface.co/trydecidedotai/Dax-1">Dax-1</a>, which reports
-  91.7% strict workbook accuracy, these probes found it edits one of two
-  identically-labelled columns on 20 of 20 ambiguous tasks, with nothing marking
-  the choice as a choice, while scoring 20/20 on controls. Adding one documented
-  field in which to decline cuts that to 5 of 20 and turns unanswerable requests
-  into 20/20 precise refusals that name the colliding columns. The judgement is
-  in the weights and the patch schema has nowhere to put it, so this is a schema
-  problem before it is a training one. A quarter of ambiguous tasks still get a
-  silent guess even with the escape hatch.</p>
+  91.7% strict workbook accuracy, configured exactly as its model card
+  documents: of 35 edits on unanswerable requests, <strong>zero introduced a
+  value absent from the workbook</strong>. It resolved missing entities to the
+  nearest real row and edited that instead, correct column, real value, wrong
+  entity, nothing flagged. Asked to set the Inventory for a region absent from a
+  23-row sheet, it picked <code>C21</code> ("East Rural") in one condition and
+  <code>C8</code> ("North Border") in the other. A hallucination check looking
+  for invented numbers would pass it on every one of these tasks. It also
+  silently picked one of two identically-labelled columns on
+  <strong>20 of 20</strong> ambiguous tasks while scoring 20/20 on controls.</p>
+  <p>Enabling the reasoning mode its card tells you to disable restores precise
+  refusals that name the exact collision: abstention on unanswerable requests
+  goes from 5/20 to 20/20, and on ambiguous from 0/20 to 15/20, both at
+  p = 6.1e-05 on 15 discordant pairs all running the same way. The grounding
+  judgement is in the weights. The shipped configuration does not express it,
+  and the published accuracy number would not show you that.</p>
   <p><strong>Seven of the benchmark's own "unanswerable" tasks were
   answerable.</strong> A <code>p1_fabrication</code> task asking for July's
   invoice amount, on a sheet containing July and the amount, is answerable: the
