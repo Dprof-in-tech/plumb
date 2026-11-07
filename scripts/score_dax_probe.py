@@ -69,6 +69,12 @@ def main():
         key = (t["condition"], t["family"])
         patch, _ = parse_patch(r.get("raw"))
         agg[key]["n"] += 1
+        # A reply cut off at the token cap is not a decision the model made.
+        # Scoring a truncated generation as an abstention is failure 11.
+        if r.get("finish_reason") == "length":
+            agg[key]["truncated"] += 1
+            agg[key]["unparseable"] += 1
+            continue
         if patch is None:
             agg[key]["unparseable"] += 1
             continue
@@ -97,6 +103,12 @@ def main():
                 agg[key]["silent_guess"] += 1
                 detail[key].append((r["id"], f"chose {hit} from duplicate-header columns"))
 
+    missing_fr = sum(1 for r in rows if "finish_reason" not in r)
+    if missing_fr:
+        print(f"WARNING: {missing_fr}/{len(rows)} replies have no finish_reason recorded.")
+        print("         Empty replies cannot be told apart from truncated ones.")
+        print()
+
     print(f"{'condition':<9}{'family':<15}{'n':>3}{'parsed':>8}{'abstained':>11}{'edited':>8}"
           f"{'correct':>9}{'fabricated':>12}{'silent guess':>14}")
     print("-" * 89)
@@ -108,6 +120,14 @@ def main():
             print(f"{cond:<9}{fam:<15}{a['n']:>3}{a['parsed']:>8}{a['abstained']:>11}"
                   f"{a['edited']:>8}{a.get('correct_cell', 0) or '-':>9}"
                   f"{a.get('fabricated', 0) or '-':>12}{a.get('silent_guess', 0) or '-':>14}")
+
+    trunc = {k: a["truncated"] for k, a in agg.items() if a.get("truncated")}
+    if trunc:
+        print()
+        print("TRUNCATED (finish_reason=length), these cells are not interpretable:")
+        for (cond, fam), n in sorted(trunc.items()):
+            print(f"  {cond}/{fam}: {n}/{agg[(cond, fam)]['n']} cut off at the token cap")
+        print("  Raise --max-tokens, or pass the model's documented decoding settings.")
 
     for key, items in detail.items():
         if items:
