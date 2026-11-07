@@ -238,14 +238,25 @@ failure class that standard evals miss, not a leaderboard.
 
 The question a grounding benchmark finally has to answer is whether the thing
 you ship is better than the thing you started with. For this project the answer
-is not a fine-tune. Four of those were attempted and none generalised. It is a
+is not a fine-tune. Seven of those were attempted and none generalised. It is a
 schema check the model cannot perform for itself.
 
 **Before** is the realistic deployment case: a sheet contains two columns with
 the same header, nothing flags it, and the model is asked a question that
-depends on which one is meant. **After** is the same 96 tasks with
-`plumb.ambiguity` detecting the collision and saying so in the prompt. Same
-model, same weights, same serving path, two replicates each.
+depends on which one is meant. **After** adds `plumb.ambiguity`, which detects
+the collision and says so in the prompt. Same model, same weights, same serving
+path, two replicates each.
+
+Read the n column carefully, because the two halves of this table are different
+kinds of claim. The detector fires on **exactly 16 of the 96 tasks**, verified:
+every task it alters is a `p2_ambiguity` task, and the other 80 prompts come out
+byte-identical. So `silent_guess_rate` is a measured paired comparison on those
+16, and the guard rows are reported at their full n and unchanged *because the
+prompts feeding them are provably the same bytes*. That is a construction, not a
+second measurement, and it is the stronger of the two: there is no mechanism by
+which those metrics could move, so there is no run-to-run noise to argue about
+either. A reader who wants the guards measured independently gets that from the
+baseline rows, which are the same numbers.
 
 | metric | n | before | after | change |
 |---|---:|---:|---:|---|
@@ -279,9 +290,9 @@ elsewhere: the prompt decision rule reported earlier is significant too, but it
 buys fabrication with over-refusal. This buys nothing with anything.
 
 **The model silently guessed on every ambiguous task and now guesses on none,
-at no cost to any other metric.** That is what the detector's design buys: it
-modifies exactly the 16 tasks containing a collision and leaves the other 80
-byte-identical, so there is no mechanism by which the guards could move.
+at no cost to any other metric.** That is what the detector's design buys, and
+why the guard columns are safe to read as unchanged rather than as merely
+not-yet-moved.
 
 It is not specific to one variant. The same comparison on `tiny-aya-fire`:
 
@@ -292,6 +303,19 @@ It is not specific to one variant. The same comparison on `tiny-aya-fire`:
 
 Two models, two replicates each, same outcome: the probe this benchmark was
 built around goes from near-total failure to zero.
+
+Artifacts: `runs/auto-global-unannounced-{1,2}.jsonl` and
+`runs/auto-global-auto-announced-{1,2}.jsonl`, with `auto-fire-*` for the second
+model. Reproduce the paired table with:
+
+```bash
+python3 scripts/paired_analysis.py \
+  runs/auto-global-unannounced-2.jsonl \
+  runs/auto-global-auto-announced-2.jsonl
+```
+
+The detector's 16-of-96 firing pattern is checked by
+`python3 scripts/test_ambiguity.py`.
 
 ### Why this is the right answer rather than a consolation prize
 
@@ -308,7 +332,7 @@ duplicate header is a property of the schema, not of the language model.** It
 is the kind of thing a regular expression does perfectly and a 3.35B
 transformer does never.
 
-Four training interventions could not teach the model to see it. Twenty lines
+Seven training interventions could not teach the model to see it. Twenty lines
 of dependency-free Python see it every time: 16 of 16 recall on the benchmark's
 own ambiguity tasks, zero false positives across the other 160.
 
