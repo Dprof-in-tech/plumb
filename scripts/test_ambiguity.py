@@ -130,4 +130,16 @@ check("describe() is one line",
 check("describe() clean case", describe({"A1": "Month"}) == "no header collisions")
 
 print(f"\n{'ALL PASS' if not FAILED else str(len(FAILED)) + ' FAILED: ' + ', '.join(FAILED)}")
-sys.exit(1 if FAILED else 0)
+
+
+def test_all():
+    """Collected by pytest. The checks above run at import; this asserts the result.
+
+    Keeping the checks at module level preserves the standalone script behaviour
+    the README documents, while still giving pytest something to collect.
+    """
+    assert not FAILED, f"{len(FAILED)} check(s) failed: " + ", ".join(FAILED)
+
+
+if __name__ == "__main__":
+    sys.exit(1 if FAILED else 0)

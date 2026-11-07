@@ -1365,43 +1365,35 @@ typed in. It audits 100% on every probe. Use that one.
 
 ### 11. An empty reply was read as a refusal without logging why it was empty
 
-The Dax-1 probe's first run put six unanswerable tasks to the model under a
-contract with no field for declining. All six came back empty. I reported that
-as a model that "would not invent a value" and had no way to say why, which is
-a claim about intent.
+Six unanswerable tasks were put to Dax-1 under a contract with no field for
+declining. All six came back empty. I reported that as a model that "would not
+invent a value" and had no way to say why, which is a claim about intent.
 
-The artifact could not support it. That run recorded only `id` and `raw`, not
+The artifact could not support it. That run recorded only `id` and `raw`, never
 `finish_reason`, so an empty string that was a deliberate null and an empty
-string that was a truncated generation were indistinguishable in the data I was
-reading. I picked the flattering reading.
+string that was a truncated generation were **indistinguishable in the data I
+was reading**. I picked the flattering reading.
 
-Re-running with `finish_reason` logged, on twenty tasks per cell, showed 19 of
-20 of those empties were `finish_reason: length`: the generation hit the token
-cap and got cut off. Nothing else in the 120-task run was truncated. The cause
-was that Dax-1's model card documents `chat_template_kwargs:
-{enable_thinking: false}` and I had not passed it, so the model was deliberating
-in a reasoning stream and never reached the patch.
+Logging the field and re-running on twenty tasks per cell showed 19 of 20 of
+those empties were `finish_reason: length`, cut off at the token cap, and
+nothing else in 120 tasks was truncated. The cause was that I had not passed the
+decoding settings the model card documents. Run correctly, the cell is not a
+refusal at all, and the full result is in
+[the Dax-1 probe](#running-plumb-against-a-purpose-built-spreadsheet-model).
 
-Running it correctly inverted the finding. That cell is not a refusal at all:
-it is **20 of 20 unsupported edits**. The claim was not merely unsupported, it
-was backwards, and the "zero fabrications" headline it sat under was measuring
-a decoding mode rather than the model. A second claim went with it: given an
-escape hatch the six-task run refused 5 of 5 ambiguous tasks, where at n=20
-with thinking on it refuses 15 and with thinking off, 0.
+This is the only one of the eleven not caught by a control, and the only one
+that reached a published artifact first. It was caught by re-reading the
+vendor's own documentation while writing the probe up, going back for the field
+that would discriminate, and finding I had never recorded it. The general
+lesson is narrower than "log more": **an interpretation of an absent output is
+only as good as the field that distinguishes its causes**, and that field has to
+be recorded at generation time, because it cannot be recovered afterwards.
 
-What this one cost: two published claims, in the README, the Space and the
-model card, retracted after the fact rather than before. What caught it: not a
-control. I noticed the card's decoding settings while writing up the probe,
-went back for the field that would discriminate, and found I had never logged
-it. Of the eleven failures here, this is the only one caught by re-reading
-someone else's documentation, and the only one that reached a published
-artifact before being caught.
-
-The fix is in the harness: `finish_reason` is recorded on every reply, an empty
-reply with `finish_reason: length` scores as unparsed rather than as an
-abstention, the scorer names any cell that was truncated as not interpretable,
-and it warns when a results file has no `finish_reason` field at all. Pointing
-it at the original artifact now prints a warning instead of a clean table.
+The harness fix: `finish_reason` is recorded on every reply, an empty reply with
+`finish_reason: length` scores as unparsed rather than as an abstention, the
+scorer names any truncated cell as not interpretable, and it warns when a
+results file lacks the field entirely. Pointing it at the original artifact now
+prints that warning instead of a clean table.
 
 ### What the sequence argues
 
@@ -2195,14 +2187,23 @@ for the training steps.
 
 ### Harness self-tests
 
-Run these first, and after any change to `score.py` or `tasks.py`. They are
-regression tests, not demos:
-
 ```bash
+pytest                                   # unit tests: scorer rules, detector, CI gate
 python3 scripts/run.py --model stub      # ungrounded: must score 100% on all three
 python3 scripts/run.py --model refuser   # lobotomy: must trip the guards
 ```
 
+Run all three first, and after any change to `score.py` or `tasks.py`. They are
+regression tests, not demos, and they check different things.
+
+`pytest` pins the individual decision rules, including three that are subtle
+enough to have been got wrong at least once here: a clarification request on an
+ambiguous task is not over-refusal, a no-op write is not a collateral write, and
+an unparseable reply fails every metric it is measured on rather than being
+skipped. Each test file also runs standalone (`python3 scripts/test_score.py`)
+and exits non-zero on failure.
+
+The two stub backends are the functional check that sits above the unit tests.
 If `stub` stops scoring 100% on all three headline metrics, or `refuser` stops
 tripping `over_refusal_rate` and `completion_rate`, the scorer is broken and no
 other number in this repo should be trusted.
