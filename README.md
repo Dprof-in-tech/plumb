@@ -137,7 +137,13 @@ so when the answer is not there, and makes measurably fewer unsupported claims.
 PLUMB applies that to spreadsheets, where the source is a workbook and the agent
 can both say things and change things. It is 96 locked tasks, three
 mechanically scored failure modes, two guard metrics that stop the three from
-being gamed, and a before-and-after across three training interventions.
+being gamed, and a before-and-after on a shipped mitigation that takes the
+benchmark's core failure mode from 100.0% to 0.0% with every guard unchanged
+(16 of 16 paired tasks improving, 0 regressing, exact McNemar p = 3.1e-05,
+replicated on a second model). The intervention is a harness-level schema check
+rather than a fine-tune. Seven training attempts are documented here too, and
+none of them generalised; they are reported as negative results and the
+before-and-after above does not rest on any of them.
 
 The reason for the spreadsheet framing is that grounding has to cover actions,
 not just claims. An agent that writes to a cell it was never asked to touch has
