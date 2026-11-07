@@ -116,12 +116,12 @@ Checked 7 Nov 2026. Status against this project:
 | artifact | status |
 |---|---|
 | Registered email | user holds |
-| **Abstract, under 500 words** | **MISSING** |
-| **Public HF model collection** | **MISSING** (repo is public and ungated, but no Collection exists) |
-| **Public HF dataset collection** | **MISSING** (no dataset repo at all; tasks live inside the model repo) |
+| Abstract, under 500 words | done: `ABSTRACT.md`, 499 words |
+| Public HF model collection | done: `Isaacdnigerian/plumb-grounding-for-spreadsheet-agents-6aef649598a541401be63b56` (model + Space + dataset) |
+| Public HF dataset collection | done: `Isaacdnigerian/plumb-task-sets-6aef649624ee9d502271f2e9`, holding `Isaacdnigerian/plumb-tasks` |
 | Write-up (HF article or GitHub README) | done |
 | GitHub repo with reproducibility notes | done |
-| Repos, models, track and problem statements named | partial: three repos and the track are named, problem statement number is not |
+| Repos, models, track and problem statements named | done: stated at the top of `ABSTRACT.md` |
 
 Problem statement is Track 1 **#3, "Grounded answers and fewer hallucinations"**,
 of nine.
