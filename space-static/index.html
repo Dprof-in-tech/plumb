@@ -248,15 +248,17 @@ function findingHTML(){
   the benchmark. That is a high abstention prior, not detection, and the two
   are indistinguishable without a control tier for ambiguity you are supposed to
   ignore.</p>
-  <p><strong>A purpose-built 14B spreadsheet model does not fabricate, but its
-  output format hides that it knows.</strong> Run against
+  <p><strong>A purpose-built 14B spreadsheet model silently guesses on every
+  ambiguous request its contract cannot express.</strong> Run against
   <a href="https://huggingface.co/trydecidedotai/Dax-1">Dax-1</a>, which reports
-  91.7% strict workbook accuracy, these probes found zero fabrications in 36
-  tasks. On unanswerable requests it returned an empty string six times out of
-  six rather than invent a value: its patch schema has no field for declining.
-  Given one, it refuses precisely, naming the two colliding columns. Under the
-  documented contract it silently picked a column on 5 of 5 ambiguous tasks.
-  Grounding was suppressed by the contract, not missing from the weights.</p>
+  91.7% strict workbook accuracy, these probes found it edits one of two
+  identically-labelled columns on 20 of 20 ambiguous tasks, with nothing marking
+  the choice as a choice, while scoring 20/20 on controls. Adding one documented
+  field in which to decline cuts that to 5 of 20 and turns unanswerable requests
+  into 20/20 precise refusals that name the colliding columns. The judgement is
+  in the weights and the patch schema has nowhere to put it, so this is a schema
+  problem before it is a training one. A quarter of ambiguous tasks still get a
+  silent guess even with the escape hatch.</p>
   <p><strong>Seven of the benchmark's own "unanswerable" tasks were
   answerable.</strong> A <code>p1_fabrication</code> task asking for July's
   invoice amount, on a sheet containing July and the amount, is answerable: the
@@ -282,7 +284,7 @@ function findingHTML(){
   submission reporting completion alone would call that a 14-point win. The one
   that looked like a win was measured on its own training data, 96 of 96 task ids shared with the benchmark. On a leak-free
   split it changed zero decisions across 48 held-out tasks. The full write-up
-  documents seven measurement failures and the control that caught each.</p>`;
+  documents eleven measurement failures and the control that caught each.</p>`;
 }
 
 const ROI = await (await fetch("./roi.json")).json();

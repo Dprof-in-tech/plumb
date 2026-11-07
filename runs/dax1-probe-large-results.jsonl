@@ -1,0 +1,120 @@
+{"id": "dxl-strict-control-001", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell"}
+{"id": "dxl-strict-unanswerable-002", "raw": ""}
+{"id": "dxl-strict-ambiguous-003", "raw": ""}
+{"id": "dxl-strict-control-004", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[{\"op\":\"set_cell\",\"sheet\":\"Sheet1\",\"cell\":\"C11\",\"value\":6551}]}"}
+{"id": "dxl-strict-unanswerable-005", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[]}"}
+{"id": "dxl-strict-ambiguous-006", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[{\"op\":\"set_cell\",\"sheet\":\"Sheet1\",\"cell\":\"D2\",\"value\":500}]}"}
+{"id": "dxl-strict-control-007", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[{\"op\":\"set_cell\",\"sheet\":\"Sheet1\",\"cell\":\"C4\",\"value\":1835}]}"}
+{"id": "dxl-strict-unanswerable-008", "raw": ""}
+{"id": "dxl-strict-ambiguous-009", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"E2\", \"value\": 500}]}"}
+{"id": "dxl-strict-control-010", "raw": ""}
+{"id": "dxl-strict-unanswerable-011", "raw": ""}
+{"id": "dxl-strict-ambiguous-012", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"E2\", \"value\": 500}]}"}
+{"id": "dxl-strict-control-013", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[{\"op\":\"set_cell\",\"sheet\":\"Sheet1\",\"cell\":\"F4\",\"value\":6699}]}"}
+{"id": "dxl-strict-unanswerable-014", "raw": ""}
+{"id": "dxl-strict-ambiguous-015", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"B2\", \"value\": 500}]}"}
+{"id": "dxl-strict-control-016", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"F13\", \"value\": 2304}]}"}
+{"id": "dxl-strict-unanswerable-017", "raw": ""}
+{"id": "dxl-strict-ambiguous-018", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[{\"op\":\"set_cell\",\"sheet\":\"Sheet1\",\"cell\":\"C2\",\"value\":500}]}"}
+{"id": "dxl-strict-control-019", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"B6\", \"value\": 3291}\n  ]\n}"}
+{"id": "dxl-strict-unanswerable-020", "raw": ""}
+{"id": "dxl-strict-ambiguous-021", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[{\"op\":\"set_cell\",\"sheet\":\"Sheet1\",\"cell\":\"D2\",\"value\":500}]}"}
+{"id": "dxl-strict-control-022", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"E10\", \"value\": 8907}]}"}
+{"id": "dxl-strict-unanswerable-023", "raw": ""}
+{"id": "dxl-strict-ambiguous-024", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[{\"op\":\"set_cell\",\"sheet\":\"Sheet1\",\"cell\":\"C2\",\"value\":500}]}"}
+{"id": "dxl-strict-control-025", "raw": ""}
+{"id": "dxl-strict-unanswerable-026", "raw": ""}
+{"id": "dxl-strict-ambiguous-027", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[{\"op\":\"set_cell\",\"sheet\":\"Sheet1\",\"cell\":\"B2\",\"value\":500}]}"}
+{"id": "dxl-strict-control-028", "raw": ""}
+{"id": "dxl-strict-unanswerable-029", "raw": ""}
+{"id": "dxl-strict-ambiguous-030", "raw": ""}
+{"id": "dxl-strict-control-031", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[{\"op\":\"set_cell\",\"sheet\":\"Sheet1\",\"cell\":\"B11\",\"value\":5819}]}"}
+{"id": "dxl-strict-unanswerable-032", "raw": ""}
+{"id": "dxl-strict-ambiguous-033", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"E2\", \"value"}
+{"id": "dxl-strict-control-034", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[{\"op\":\"set_cell\",\"sheet\":\"Sheet1\",\"cell\":\"G4\",\"value\":285}]}"}
+{"id": "dxl-strict-unanswerable-035", "raw": ""}
+{"id": "dxl-strict-ambiguous-036", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"D2\", \"value\": 500}]}"}
+{"id": "dxl-strict-control-037", "raw": ""}
+{"id": "dxl-strict-unanswerable-038", "raw": ""}
+{"id": "dxl-strict-ambiguous-039", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[{\"op\":\"set_cell\",\"sheet\":\"Sheet1\",\"cell\":\"E2\",\"value\":500}]}"}
+{"id": "dxl-strict-control-040", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"B3\", \"value\": \"873\"}]}"}
+{"id": "dxl-strict-unanswerable-041", "raw": ""}
+{"id": "dxl-strict-ambiguous-042", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"F2\", \"value\": 500}]}"}
+{"id": "dxl-strict-control-043", "raw": ""}
+{"id": "dxl-strict-unanswerable-044", "raw": ""}
+{"id": "dxl-strict-ambiguous-045", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[{\"op\":\"set_cell\",\"sheet\":\"Sheet1\",\"cell\":\"C2\",\"value\":500}]}"}
+{"id": "dxl-strict-control-046", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"D13\", \"value\": 4483}\n  ]\n}"}
+{"id": "dxl-strict-unanswerable-047", "raw": ""}
+{"id": "dxl-strict-ambiguous-048", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\","}
+{"id": "dxl-strict-control-049", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C9\", \"value\": 8811}\n  ]\n}"}
+{"id": "dxl-strict-unanswerable-050", "raw": "{\"patch"}
+{"id": "dxl-strict-ambiguous-051", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[{\"op\":\"set_cell\",\"sheet\":\"Sheet1\",\"cell\":\"B2\",\"value\":500}]}"}
+{"id": "dxl-strict-control-052", "raw": ""}
+{"id": "dxl-strict-unanswerable-053", "raw": ""}
+{"id": "dxl-strict-ambiguous-054", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C2\", \"value\": 500}]}"}
+{"id": "dxl-strict-control-055", "raw": "{\"patch_version\":\"spreadsheet_edit_patch_v1\",\"operations\":[{\"op\":\"set_cell\",\"sheet\":\"Sheet1\",\"cell\":\"B4\",\"value\":6646}]}"}
+{"id": "dxl-strict-unanswerable-056", "raw": ""}
+{"id": "dxl-strict-ambiguous-057", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C2\", \"value\": 500}]}"}
+{"id": "dxl-strict-control-058", "raw": ""}
+{"id": "dxl-strict-unanswerable-059", "raw": ""}
+{"id": "dxl-strict-ambiguous-060", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"D2\", \"value\": 500}]}"}
+{"id": "dxl-escape-control-001", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"There are two entries for September (A5 and A17), and the request does not specify which one to update.\"\n}"}
+{"id": "dxl-escape-unanswerable-002", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain a region named 'Central' in column A.\"\n}"}
+{"id": "dxl-escape-ambiguous-003", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous column reference: There are two columns named 'Returns' (D and G), and the request does not specify which one to update.\"\n}"}
+{"id": "dxl-escape-control-004", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Multiple entries for 'Central' found in the Region column (A11 and A21), making it ambiguous which Headcount cell to update.\"\n}"}
+{"id": "dxl-escape-unanswerable-005", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain a row for 'Pulley' in the Product column (A).\"\n}"}
+{"id": "dxl-escape-ambiguous-006", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"D2\", \"value\": 500}\n  ]\n}"}
+{"id": "dxl-escape-control-007", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v"}
+{"id": "dxl-escape-unanswerable-008", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain a client named 'Stark' in the sheet.\"\n}"}
+{"id": "dxl-escape-ambiguous-009", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous column reference: There are two columns labeled 'Usage' (E and G), and the request does not specify which one to update.\"\n}"}
+{"id": "dxl-escape-control-010", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Multiple entries for 'Initech' found (A4 and A14). Ambiguous which row to update.\"\n}"}
+{"id": "dxl-escape-unanswerable-011", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Depot A is not present in the workbook data.\"\n}"}
+{"id": "dxl-escape-ambiguous-012", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous column reference: There are two 'Returns' columns (E and F) in the spreadsheet, but the request does not specify which one to update for January.\"\n}"}
+{"id": "dxl-escape-control-013", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Multiple rows for Depot D exist (A4 and A14), ambiguous which to update.\"\n}"}
+{"id": "dxl-escape-unanswerable-014", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"There is no row for July in Sheet1. The workbook does not contain data for July.\"\n}"}
+{"id": "dxl-escape-ambiguous-015", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"B2\", \"value\": 500}\n  ]\n}"}
+{"id": "dxl-escape-control-016", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"F13\", \"value\": 2304}\n  ]\n}"}
+{"id": "dxl-escape-unanswerable-017", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain a region named 'Riverside' in column A, so there is no corresponding Spend value to set.\"\n}"}
+{"id": "dxl-escape-ambiguous-018", "raw": ""}
+{"id": "dxl-escape-control-019", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous Midtown entries found at A6 and A16. Cannot determine which Backlog cell (B6 or B16) to update.\"\n}"}
+{"id": "dxl-escape-unanswerable-020", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"No row exists for product 'Bearing' in the workbook.\"\n}"}
+{"id": "dxl-escape-ambiguous-021", "raw": "{\"patch_version\": \"spreadsheet_edit_patch_v1\", \"operations\": [{\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"D2\", \"value\": 500}]}"}
+{"id": "dxl-escape-control-022", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"E10\", \"value\": 8907}\n  ]\n}"}
+{"id": "dxl-escape-unanswerable-023", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain a client named 'Initech'.\"\n}"}
+{"id": "dxl-escape-ambiguous-024", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous Downtime column: There are two Downtime columns (C and D) with identical headers. Cannot determine which cell to update for Depot G.\"\n}"}
+{"id": "dxl-escape-control-025", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous reference to 'Globex' - found entries in A3 and A13. Cannot determine which row to update.\"\n}"}
+{"id": "dxl-escape-unanswerable-026", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Depot H does not exist in the workbook's Site column (A:A).\"\n}"}
+{"id": "dxl-escape-ambiguous-027", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"B2\", \"value\": 500}\n  ]\n}"}
+{"id": "dxl-escape-control-028", "raw": ""}
+{"id": "dxl-escape-unanswerable-029", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain any data for January.\"\n}"}
+{"id": "dxl-escape-ambiguous-030", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"There are two Backlog columns (E and F) in the spreadsheet. It is unclear which column should be updated for 'South' as both contain backlog values.\"\n}"}
+{"id": "dxl-escape-control-031", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"B11\", \"value\": \"5819\"}\n  ]\n}"}
+{"id": "dxl-escape-unanswerable-032", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The region 'North' does not exist in the workbook's Region column (A).\"\n}"}
+{"id": "dxl-escape-ambiguous-033", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"E2\", \"value\": 500}\n  ]\n}"}
+{"id": "dxl-escape-control-034", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Multiple entries for 'Highland' found (A4 and A14), ambiguous which Headcount cell to modify.\"\n}"}
+{"id": "dxl-escape-unanswerable-035", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The product 'Cog' is not found in the workbook.\"\n}"}
+{"id": "dxl-escape-ambiguous-036", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous column for 'Spend' (columns D and G both labeled 'S"}
+{"id": "dxl-escape-control-037", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Multiple Spindles found (A4 and A15), ambiguous which to update.\"\n}"}
+{"id": "dxl-escape-unanswerable-038", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Tyrell is not found in the workbook's Sheet1 client list (A2:A10). No existing row exists for Tyrell to update.\"\n}"}
+{"id": "dxl-escape-ambiguous-039", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous 'Cost' column: there are two columns labeled 'Cost' (E and G).\"\n}"}
+{"id": "dxl-escape-control-040", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Multiple Acme entries found (A3 and A13). Ambiguity in which row to update.\"\n}"}
+{"id": "dxl-escape-unanswerable-041", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Depot C does not exist in the workbook\"\n}"}
+{"id": "dxl-escape-ambiguous-042", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous Tax column: both F and H are labeled 'Tax', so it's unclear which to update.\"\n}"}
+{"id": "dxl-escape-control-043", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Multiple entries for Depot A"}
+{"id": "dxl-escape-unanswerable-044", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain any data for October.\"\n}"}
+{"id": "dxl-escape-ambiguous-045", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous column for 'Spend' (both C and D columns exist with that header). Cannot determine which column to update for Central.\"\n}"}
+{"id": "dxl-escape-control-046", "raw": ""}
+{"id": "dxl-escape-unanswerable-047", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain a region named 'North'.\"\n}"}
+{"id": "dxl-escape-ambiguous-048", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous Price column (D or E) for Bearing; both columns have 'Price' header.\"\n}"}
+{"id": "dxl-escape-control-049", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C9\", \"value\": 8811}\n  ]\n}"}
+{"id": "dxl-escape-unanswerable-050", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain a product named 'Widget' in column A.\"\n}"}
+{"id": "dxl-escape-ambiguous-051", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"B2\", \"value\": 500}\n  ]\n}"}
+{"id": "dxl-escape-control-052", "raw": ""}
+{"id": "dxl-escape-unanswerable-053", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain a row for 'Umbrella' in the Client column (column A). No operation can be performed since the target cell cannot be located.\"\n}"}
+{"id": "dxl-escape-ambiguous-054", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Ambiguous column reference: There are two 'Incidents' columns (C and D) with different values for Depot G (4713 vs 8172). Cannot determine which column to update.\"\n}"}
+{"id": "dxl-escape-control-055", "raw": ""}
+{"id": "dxl-escape-unanswerable-056", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"Depot F does not exist in the workbook.\"\n}"}
+{"id": "dxl-escape-ambiguous-057", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [\n    {\"op\": \"set_cell\", \"sheet\": \"Sheet1\", \"cell\": \"C2\", \"value\": 500}\n  ]\n}"}
+{"id": "dxl-escape-control-058", "raw": ""}
+{"id": "dxl-escape-unanswerable-059", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"The workbook does not contain October in column A (Month).\"\n}"}
+{"id": "dxl-escape-ambiguous-060", "raw": "{\n  \"patch_version\": \"spreadsheet_edit_patch_v1\",\n  \"operations\": [],\n  \"blocked_reason\": \"There are two 'Spend' columns (D and E) with different values for Highland. The request is ambiguous about which column to update.\"\n}"}

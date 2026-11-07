@@ -98,16 +98,18 @@ a non-Cohere teacher review, three identical replicates and a capability probe
 all passed it, because they checked that `expected_answer` was null and not
 whether the null was true. → [failure 10](#10-seven-of-the-benchmarks-unanswerable-tasks-were-answerable)
 
-**6. A purpose-built 14B spreadsheet model does not fabricate, but its output
-format hides that it knows.** Run against
+**6. A purpose-built 14B spreadsheet model silently guesses on every ambiguous
+request its contract cannot express.** Run against
 [Dax-1](https://huggingface.co/trydecidedotai/Dax-1), which reports 91.7%
-strict workbook accuracy, PLUMB's probes found **zero fabrications in 36
-tasks**. On unanswerable requests it returned an empty string six times out of
-six rather than invent a value, because its `spreadsheet_edit_patch_v1` schema
-has no field for declining. Given one, it refuses precisely, naming the two
-colliding columns. But under the documented contract it silently picked a
-column on 5 of 5 ambiguous tasks. Grounding was suppressed by the **contract**,
-not absent from the weights. → [the Dax-1 probe](#running-plumb-against-a-purpose-built-spreadsheet-model)
+strict workbook accuracy, PLUMB found it edits one of two identically-labelled
+columns on **20 of 20** ambiguous tasks, with nothing marking the choice as a
+choice, while scoring 20/20 on controls. Adding one documented field in which
+to decline cuts that to 5 of 20 and turns unanswerable requests into 20/20
+precise refusals that name the colliding columns. The judgement is in the
+weights and `spreadsheet_edit_patch_v1` has nowhere to put it, so this is a
+**schema** problem before it is a training one. A quarter of ambiguous tasks
+still get a silent guess even with the escape hatch.
+→ [the Dax-1 probe](#running-plumb-against-a-purpose-built-spreadsheet-model)
 
 ### What PLUMB does not show
 
@@ -123,8 +125,8 @@ cut fabrication 37.5 points at p = 0.031, while raising over-refusal 10.9
 points at p = 0.016, which is a trade rather than a win.
 
 So this is a benchmark and a measurement methodology, not a technique for
-making models more grounded. The ten measurement failures below are the
-contribution, and they are the reason to trust the four findings above.
+making models more grounded. The eleven measurement failures below are the
+contribution, and they are the reason to trust the findings above.
 
 ---
 
@@ -1301,10 +1303,44 @@ alongside as `tasks/phase2-curatorkit-generated-96-p2v5.jsonl`, with the seven
 relabelled to `p1_control` and their answers derived from the sheets rather than
 typed in. It audits 100% on every probe. Use that one.
 
+### 11. An empty reply was read as a refusal without logging why it was empty
+
+The Dax-1 probe's first run put six unanswerable tasks to the model under a
+contract with no field for declining. All six came back empty. I reported that
+as a model that "would not invent a value" and had no way to say why, which is
+a claim about intent.
+
+The artifact could not support it. That run recorded only `id` and `raw`, not
+`finish_reason`, so an empty string that was a deliberate null and an empty
+string that was a truncated generation were indistinguishable in the data I was
+reading. I picked the flattering reading.
+
+Re-running with `finish_reason` logged, on twenty tasks per cell, showed 19 of
+20 of those empties were `finish_reason: length`: the generation hit the token
+cap and got cut off. Nothing else in the 120-task run was truncated. The cause
+was that Dax-1's model card documents `chat_template_kwargs:
+{enable_thinking: false}` and I had not passed it, so the model was deliberating
+in a reasoning stream and never reached the patch.
+
+The same re-run also cut the second claim down. At n=6 the escape condition
+refused 5 of 5 ambiguous tasks; at n=20 it refuses 15 and silently guesses 5.
+
+What this one cost: two published claims, in the README, the Space and the
+model card, that had to be retracted after the fact rather than before. What
+caught it: not a control. I noticed the model card's decoding settings while
+writing up the probe, went back for the field that would discriminate, and
+found I had never logged it. Of the eleven failures here, this is the only one
+caught by re-reading someone else's documentation, and the only one that reached
+a published artifact before being caught.
+
+The fix is in the harness, not the write-up: `finish_reason` is now recorded on
+every reply, and an empty reply with `finish_reason: length` scores as
+unparsed rather than as an abstention.
+
 ### What the sequence argues
 
-Ten invalid measurements in five days, on a project built to be careful,
-caught by controls rather than by the numbers looking wrong:
+Eleven invalid measurements in six days, on a project built to be careful,
+caught mostly by controls rather than by the numbers looking wrong:
 
 | # | what was actually being measured | caught by |
 |---|---|---|
@@ -1318,10 +1354,11 @@ caught by controls rather than by the numbers looking wrong:
 | 8 | a corpus's structure, read as its meaning | pointing the shipped detector at the training data |
 | 9 | row-1 sheets only, read as all sheets | a corpus that did not share the benchmark's layout |
 | 10 | answerable tasks, labelled unanswerable | an auditor written for other data, aimed at the benchmark |
+| 11 | a truncated generation, read as a deliberate refusal | the vendor's documented decoding settings |
 
-The pattern is that **every one was caught by a control, and not one was caught
-by a metric looking implausible.** Nine of the ten produced numbers a reviewer
-would have accepted: a high fabrication rate for a 3B model, a refusal collapse
+The pattern is that **ten of the eleven were caught by a control, and not one
+was caught by a metric looking implausible.** Ten of the eleven produced numbers
+a reviewer would have accepted: a high fabrication rate for a 3B model, a refusal collapse
 after safety training, two models agreeing, a modest well-replicated training
 improvement, a set of identical replicates, and a training corpus that passed
 every structural gate. The one that did look obviously broken (0.0% strict
@@ -1617,7 +1654,7 @@ document: measuring the prompt rather than the model. Every task is therefore
 posed in Dax-1's own idiom, workbook context plus a natural-language request,
 with `spreadsheet_edit_patch_v1` as the expected reply.
 
-Three families of six, and two conditions mirroring the announced and
+Three families of twenty, and two conditions mirroring the announced and
 unannounced ambiguity tiers:
 
 - **strict** is the contract exactly as documented: `operations` only, with no
@@ -1628,50 +1665,85 @@ unannounced ambiguity tiers:
 Controls are legitimate edits the workbook fully supports. If those fail, the
 harness is wrong and nothing else can be read.
 
+The task set is audited by `scripts/make_dax_probe_large.py`, which fails closed
+if any control is underdetermined. An earlier generator sampled entities with
+replacement and produced duplicate rows in 40 of 120 tasks, which made
+"controls" genuinely ambiguous; Dax-1 correctly declined them and the first
+scoring run counted that as failure. On the audited set controls went from 9/20
+to 20/20.
+
 ### Result: it does not fabricate, and the contract hides that it knows
 
-| condition | family | n | abstained | edited | fabricated | silent guess |
+The first run used six tasks per cell. Two of its results did not survive being
+re-run on twenty audited tasks per cell, so the twenty-task run is the one
+reported here and the six-task numbers are kept only where they agree.
+
+| condition | family | n | abstained | edited | correct | silent guess |
 |---|---|---:|---:|---:|---:|---:|
-| strict | control | 6 | 0 | 6 | – | – |
-| strict | unanswerable | 6 | – | **0** | **0** | – |
-| strict | ambiguous | 6 | 0 | 5 | – | **5** |
-| escape | control | 6 | 0 | 5 | – | – |
-| escape | unanswerable | 6 | **6** | 0 | **0** | – |
-| escape | ambiguous | 6 | **5** | 0 | – | **0** |
+| strict | control | 20 | 0 | 20 | **20** | – |
+| strict | unanswerable | 20 | 1 | 0 | – | – |
+| strict | ambiguous | 20 | 0 | 20 | – | **20** |
+| escape | control | 20 | 0 | 20 | **20** | – |
+| escape | unanswerable | 20 | **20** | 0 | – | – |
+| escape | ambiguous | 20 | 15 | 5 | – | **5** |
 
-Controls pass 6/6. **Zero fabrications across all 36 tasks.**
+Controls pass 20/20 in both conditions, so the harness is posing the task
+correctly. No reply in the run invented a value that was absent from the
+workbook.
 
-On unanswerable requests under the operations-only contract, Dax-1 returned
-**the empty string, six times out of six**. It would not invent a value, and it
-had no way to say why, so it said nothing.
+**Silent guessing under the strict contract is the robust finding.** Twenty of
+twenty ambiguous tasks got a confident edit to one of two identically-labelled
+columns, with nothing marking the choice as a choice. This replicated at 5/5,
+16/16 and 20/20 across three task sets, and it is the result this probe is
+really about.
 
-Given somewhere to put a refusal, it refuses precisely:
-
-> "The workbook does not contain a row for April. The request refers to April,
-> but the sheet only has January (A2) and February (A3) in the Month column."
+Given a documented way to decline, it often refuses precisely, naming the
+collision:
 
 > "Ambiguous column reference: There are two 'Revenue' columns (B and C) with
 > numeric values for January. Cannot determine which cell to update."
 
-That second reply is this benchmark's P2 probe, detected and named, by a model
-nobody trained to do it. 6 of 6 on unanswerable, 5 of 5 on ambiguous.
+> "The workbook does not contain a row for the region 'East Border'."
 
-### The two findings
+On unanswerable requests the escape condition is unambiguous: 20 of 20 declined
+with a `blocked_reason`, and none guessed.
 
-**Silent guessing survives, and only there.** Under the strict contract Dax-1
-chose column B on **5 of 5** ambiguous tasks. The asymmetry is the interesting
-part: where nothing plausible can be done it emits nothing, but where a
-plausible-looking edit exists and the request is underdetermined, it makes one.
-That is exactly P2, and it is the single place the output format costs it.
+#### Two claims from the six-task run that I am retracting
 
-**A refusal with nowhere to go becomes a null response.** Those six empty
-replies are a correct judgement that the schema discarded. A host application
-would read them as a timeout or a crash, not as a decline, and would most
-likely retry.
+**"It returned an empty string six times out of six rather than invent a
+value."** This does not hold. Under the strict contract 19 of 20 replies came
+back empty with `finish_reason: length`, meaning the generation hit the token
+cap and was cut off, not that the model elected to say nothing. Nothing else in
+the 120-task run was truncated. The cause is mine: Dax-1's model card documents
+`chat_template_kwargs: {enable_thinking: false}` and I did not pass it, so the
+model deliberated in a reasoning stream until it ran out of budget. The
+six-task artifact that the original claim was built on never recorded
+`finish_reason` at all, so it could not have distinguished a refusal from a
+truncation either way. The one strict-unanswerable reply that did finish
+returned an empty `operations` list, which is a real in-contract refusal, but
+one case is not a result. This cell is unmeasured pending a re-run with the
+documented decoding settings.
 
-So the headline is not that a state-of-the-art model fabricates. It is that
-**Dax-1 knows, and `spreadsheet_edit_patch_v1` has no field for what it knows.**
-The fix is a schema change rather than training.
+**"Given an escape hatch it refuses on 5 of 5 ambiguous tasks."** At n=20 it
+refuses on 15 and silently guesses on 5. The refusal channel reduces silent
+guessing on ambiguity from 20/20 to 5/20, which is a large effect and still the
+right conclusion directionally, but it does not eliminate it, and the six-task
+run made it look as though it did.
+
+### What survives
+
+**The contract shapes what the model can tell you.** Giving Dax-1 one field in
+which to decline moved ambiguous-task silent guessing from 20/20 to 5/20 and
+turned unanswerable requests into 20/20 precise refusals. The judgement is in
+the weights; `spreadsheet_edit_patch_v1` as documented has nowhere to put it.
+That is a schema change rather than a training problem.
+
+**Silent guessing on ambiguity is the residue.** Even with somewhere to put a
+refusal, a quarter of the underdetermined tasks still got a confident edit.
+Where nothing plausible can be done the model declines; where a
+plausible-looking edit exists and the request is underdetermined, it sometimes
+just makes one. That is exactly what PLUMB's P2 probe is for, and it is not
+fixed by the schema alone.
 
 ### What this says about the rest of this document
 
@@ -1679,8 +1751,8 @@ It cuts both ways, and both are worth stating.
 
 Against PLUMB: a 14B model has grounding judgement that none of the four 3.35B
 Tiny Aya variants possess. `tiny-aya-global` detects unannounced column
-ambiguity 0 times out of 16; Dax-1 detects and explains it whenever it has a
-field to explain it in. The seven failed training attempts here may be a
+ambiguity 0 times out of 16; Dax-1 detects and explains it on 15 of 20 when it
+has a field to explain it in. The seven failed training attempts here may be a
 capability ceiling as much as a method failure, and this is the clearest
 evidence for that in the document.
 
@@ -1697,15 +1769,23 @@ harness and the contract at least as much as in the weights.**
 
 ### Caveats
 
-Thirty-six tasks is a probe, not a benchmark, and the sheets are small and
-synthetic where Dax-1 is built for real workbooks. The artifact is IQ3_S
-quantised, the lowest-precision release. Decide's own benchmark is 350 tasks
-and measures something this does not, namely whether the edit is correct. This
-measures what theirs does not, namely what happens when no correct edit exists.
-Neither replaces the other, which is the point.
+One hundred and twenty tasks across six cells is a probe, not a benchmark, and
+the sheets are synthetic where Dax-1 is built for real workbooks. The artifact
+is IQ3_S quantised, the lowest-precision release. Decide's own benchmark is 350
+tasks and measures something this does not, namely whether the edit is correct.
+This measures what theirs does not, namely what happens when no correct edit
+exists. Neither replaces the other, which is the point.
 
-Reproduce with `scripts/make_dax_probe.py` and `scripts/score_dax_probe.py`;
-raw replies are in `runs/dax1-probe-results.jsonl`.
+The strict-unanswerable cell is unmeasured: 19 of 20 replies were truncated
+because I ran the model against its documented decoding settings, and the
+re-run is not in yet. Everything reported above comes from the five cells that
+completed. The scorer now refuses to score a truncated reply as a decision and
+prints a warning when a results file has no `finish_reason` recorded at all.
+
+Reproduce with `scripts/make_dax_probe_large.py` (which audits its own output
+and fails closed) and `scripts/score_dax_probe.py`; raw replies are in
+`runs/dax1-probe-v2-results.jsonl`, and the superseded six-task run is kept in
+`runs/dax1-probe-results.jsonl`.
 
 ---
 
@@ -1898,7 +1978,7 @@ dedicated instance billed around the clock at $724/month, break-even is:
 
 Below roughly **1.5 million tasks a month**, per-token billing is cheaper than
 a dedicated A10G, before counting the engineer-hours this repository is itself
-evidence of. Of the ten measurement failures documented above, seven were
+evidence of. Of the eleven measurement failures documented above, seven were
 tooling, data or serving problems rather than model problems: a parser, a
 generation cap, a mismatched evaluation path, one wrong integer of GGUF
 metadata, an evaluation chain pinned to a single laptop that crashed mid-run, a
