@@ -99,9 +99,46 @@ mechanical had failed. P2 is that bug generalised.
 
 ## Dates
 
-- **21 Nov 2026**: submission deadline.
-- **19 Nov 2026**: hard code freeze. The last two days are writing, and this
-  is not negotiable. Write-up clarity is scored out of 10 on its own.
+Corrected 7 Nov 2026 against <https://hackathon.lexsi.ai/>. The previously
+recorded 21 Nov deadline was wrong: 21 Nov is the end of the hackathon
+*period*, not the submission date. Submissions close a week earlier.
+
+- **14 Nov 2026, end of day**: SUBMISSION DEADLINE. Hard.
+- **12 Nov 2026**: code freeze. The last two days are writing. Write-up
+  clarity is scored on its own.
+- **16 Nov 2026**: Demo Day teams announced.
+- **22 Nov 2026**: Demo Day.
+
+## Required submission artifacts, from the official page
+
+Checked 7 Nov 2026. Status against this project:
+
+| artifact | status |
+|---|---|
+| Registered email | user holds |
+| **Abstract, under 500 words** | **MISSING** |
+| **Public HF model collection** | **MISSING** (repo is public and ungated, but no Collection exists) |
+| **Public HF dataset collection** | **MISSING** (no dataset repo at all; tasks live inside the model repo) |
+| Write-up (HF article or GitHub README) | done |
+| GitHub repo with reproducibility notes | done |
+| Repos, models, track and problem statements named | partial: three repos and the track are named, problem statement number is not |
+
+Problem statement is Track 1 **#3, "Grounded answers and fewer hallucinations"**,
+of nine.
+
+Base model is on the permitted list (Tiny Aya Global). Three Track 1 repos are
+chained, against a minimum of two and a stated preference for three or more.
+
+Note on the requirement wording: the page asks teams to "Showcase
+before-and-after metrics (more than one metric)" and to explain how "the
+resulting model is meaningfully better for usage." That phrasing is about the
+model. This project's before-and-after improves the system around a fixed set
+of weights. Lead with it anyway, and say plainly that it is a harness
+intervention, because the alternative is leaning on seven null training runs.
+
+The four-score rubric recorded below (write-up /10, usefulness /10, code /10,
+overall /100) is not stated on the public page, which says only that judges
+score numerically on a fixed scale. Treat it as unconfirmed.
 
 ---
 
